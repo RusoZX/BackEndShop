@@ -46,19 +46,9 @@ public class Product implements Serializable {
     @Column(name="stock")
     private Integer stock;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-            name = "goods",
-            joinColumns = @JoinColumn(name = "productId"),
-            inverseJoinColumns = @JoinColumn(name = "orderId")
-    )
+    @ManyToMany(mappedBy = "goods")
     private Set<Order> orders = new HashSet<>();
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-            name = "shoppingCart",
-            joinColumns = @JoinColumn(name = "productId"),
-            inverseJoinColumns = @JoinColumn(name = "userId")
-    )
+    @ManyToMany(mappedBy = "shoppingCart")
     private Set<User> users = new HashSet<>();
 }

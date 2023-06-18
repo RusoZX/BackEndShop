@@ -36,6 +36,11 @@ public class Order implements Serializable {
     @Column(name="deliveryMethod")
     private String deliveryMethod;
 
-    @ManyToMany(mappedBy = "goods")
+    @ManyToMany
+    @JoinTable(
+            name = "goods",
+            joinColumns = @JoinColumn(name = "orderId"),
+            inverseJoinColumns = @JoinColumn(name = "productId")
+    )
     private Set<Product> goods = new HashSet<>();
 }

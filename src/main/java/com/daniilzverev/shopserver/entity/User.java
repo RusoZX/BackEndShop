@@ -42,7 +42,12 @@ public class User implements Serializable {
     @Column(name="role")
     private String role;
 
-    @ManyToMany(mappedBy = "shoppingCart")
+    @ManyToMany
+    @JoinTable(
+            name = "shoppingCart",
+            joinColumns = @JoinColumn(name = "userId"),
+            inverseJoinColumns = @JoinColumn(name = "productId")
+    )
     private Set<Product> shoppingCart = new HashSet<>();
 
 }

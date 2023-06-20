@@ -6,5 +6,6 @@ public class Constants {
 
     public static final String SERVER_ERROR = "Server Error";
     public static final String INVALID_DATA = "Invalid Data";
-
+    public static final String REGISTERED = "Successfully registered";
+    public static final String USER_EXISTS = "User already exists";
 }

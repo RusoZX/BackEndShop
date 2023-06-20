@@ -26,4 +26,5 @@ public class UserRestImpl implements UserRest {
         }
         return Utils.getResponseEntity(Constants.SERVER_ERROR,HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
 }

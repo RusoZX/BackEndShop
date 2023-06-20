@@ -31,9 +31,9 @@ public class UserServiceImpl implements UserService {
             if (checkSignUpMap(requestMap))
                 if (Objects.isNull(userDao.findByEmail(requestMap.get("email")))) {
                     userDao.save(getUserFromMap(requestMap));
-                    return Utils.getResponseEntity("Successfully registered", HttpStatus.OK);
+                    return Utils.getResponseEntity(Constants.REGISTERED, HttpStatus.OK);
                 } else
-                    return Utils.getResponseEntity("User already exists", HttpStatus.BAD_REQUEST);
+                    return Utils.getResponseEntity(Constants.USER_EXISTS, HttpStatus.BAD_REQUEST);
             else
                 return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
         }catch(Exception ex){

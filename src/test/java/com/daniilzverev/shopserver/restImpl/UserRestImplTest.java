@@ -1,0 +1,112 @@
+package com.daniilzverev.shopserver.restImpl;
+
+import com.daniilzverev.shopserver.constants.Constants;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@Sql(scripts = {"/insert_test_data_user_rest.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = {"/delete_test_data_user_rest.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+
+class UserRestImplTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    public void signUpWithCorrectData() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("name","test");
+        requestMap.put("surname","test1");
+        requestMap.put("birthdate","2001-09-11");
+        requestMap.put("email","example@example.com");
+        requestMap.put("pwd","someEncryptedData");
+
+        MvcResult result = mockMvc.perform(post("/user/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.REGISTERED+"\"}", response);
+    }
+    @Test
+    public void userAlreadyExists() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("name","test");
+        requestMap.put("surname","test1");
+        requestMap.put("birthdate","2001-09-11");
+        requestMap.put("email","example1@example.com");
+        requestMap.put("pwd","someEncryptedData");
+
+        MvcResult result = mockMvc.perform(post("/user/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.USER_EXISTS+"\"}", response);
+    }
+    @Test
+    public void signUpWithIncorrectDate() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("name","test");
+        requestMap.put("surname","test1");
+        requestMap.put("birthdate","no format");
+        requestMap.put("email","example22@example.com");
+        requestMap.put("pwd","someEncryptedData");
+
+
+        MvcResult result = mockMvc.perform(post("/user/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}", response);
+    }
+    @Test
+    public void signUpWithIncorrectData() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("name","test");
+        requestMap.put("surname","test1");
+
+
+        MvcResult result = mockMvc.perform(post("/user/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}", response);
+    }
+
+    private String requestMapToJson(Map<String, String> requestMap) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(requestMap);
+    }
+}

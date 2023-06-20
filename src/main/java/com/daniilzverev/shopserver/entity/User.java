@@ -50,4 +50,18 @@ public class User implements Serializable {
     )
     private Set<Product> shoppingCart = new HashSet<>();
 
+    @Override
+    public boolean equals(Object toCompare){
+        if(toCompare instanceof User){
+            User user =(User) toCompare;
+            return this.id.equals(user.id) &&
+                    this.name.equals(user.name) &&
+                    this.surname.equals(user.surname) &&
+                    this.birthDate.equals(user.birthDate) &&
+                    this.email.equals(user.email) &&
+                    this.pwd.equals(user.pwd) &&
+                    this.role.equals(user.role);
+        }
+        return false;
+    }
 }

@@ -5,6 +5,7 @@ import com.daniilzverev.shopserver.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
@@ -13,6 +14,8 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@Sql(scripts = {"/insert_test_data_user_dao.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = {"/delete_test_data_user_dao.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 class UserDaoTest {
 
     @Autowired
@@ -32,6 +35,7 @@ class UserDaoTest {
         expected.setBirthDate(LocalDate.parse("2001-09-11"));
         expected.setEmail(email);
         expected.setPwd("someEncryptedData");
+        expected.setRole("client");
 
 
         //then

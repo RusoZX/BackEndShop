@@ -37,7 +37,7 @@ class UserServiceImplTest {
         requestMap.put("email","example1@example.com");
         requestMap.put("pwd","someEncryptedData");
 
-        when(userDao.findByEmail("example1@example.com")).thenReturn(null);
+        when(userDao.findByEmail(anyString())).thenReturn(null);
         when(userDao.save(any(User.class))).thenReturn(new User());
 
         ResponseEntity<String> response = userService.signUp(requestMap);
@@ -78,6 +78,7 @@ class UserServiceImplTest {
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
+
 
 
 }

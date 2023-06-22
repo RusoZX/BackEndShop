@@ -2,6 +2,7 @@ package com.daniilzverev.shopserver.JWT;
 
 import com.daniilzverev.shopserver.constants.Constants;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.jupiter.api.Test;
@@ -30,12 +31,19 @@ class JwtUtilTest {
 
     JwtUtil underTest = new JwtUtil();
 
-    //I've generated a token to test the methods with "example@example.com" and "SomeEncryptedInfo"
-    final String exampleToken= "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlQGV4YW1wbGUuY29tIiwicHdkIjoiU29tZUVuY3J5cHRlZEluZm8i" +
-            "LCJleHAiOjE2ODczODIxNjAsImlhdCI6MTY4NzM0NjE2MH0.o-5KsMCtwcmurAP1XvaJcx1F3gtUUKo36rA5Bw8TDd8";
-
+    String secret="TiteRuso";
     String username="example@example.com";
     String pwd="SomeEncryptedInfo";
+
+    //Generate a token to test the methods with "example@example.com" and "SomeEncryptedInfo"
+    final String exampleToken= newToken();
+
+    final Claims exampleClaims = Jwts.parser().setSigningKey(secret).parseClaimsJws(exampleToken).getBody();
+
+    Date issueDate= exampleClaims.getIssuedAt();
+    Date expirationDate= exampleClaims.getExpiration();
+
+
     @Test
     void extractUserName() {
         assertEquals(username, underTest.extractUserName(exampleToken));
@@ -43,7 +51,7 @@ class JwtUtilTest {
 
     @Test
     void extractExpiration() {
-        assertEquals(generateExampleDate("Wed Jun 21 23:16:00 CEST 2023"), underTest.extractExpiration(exampleToken));
+        assertEquals(expirationDate, underTest.extractExpiration(exampleToken));
     }
 
     @Test
@@ -53,51 +61,58 @@ class JwtUtilTest {
 
     @Test
     void extractClaims() {
-        assertEquals(generateExampleClaims(), underTest.extractAllClaims(exampleToken));
+        assertEquals(exampleClaims, underTest.extractAllClaims(exampleToken));
     }
 
     @Test
     void extractAllClaims() {
         assertEquals(username,
                 underTest.extractClaims(exampleToken, Claims::getSubject));
-        assertEquals(generateExampleDate("Wed Jun 21 13:16:00 CEST 2023"),
+        assertEquals(issueDate,
                 underTest.extractClaims(exampleToken, Claims::getIssuedAt));
-        assertEquals(generateExampleDate("Wed Jun 21 23:16:00 CEST 2023"),
+        assertEquals(expirationDate,
                 underTest.extractClaims(exampleToken, Claims::getExpiration));
     }
 
     @Test
     void generateToken() {
-        //given
+        String token = newToken();
 
+        //Now we get the Claims of the new token and extract the info to verify the token
+        Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
 
-        System.out.println(underTest.generateToken(username,pwd));
+        assertEquals(username, claims.getSubject());
+        assertEquals(pwd, claims.get("pwd"));
     }
 
+    @Test
+    void validateExpiredToken() {
+        String expiredToken="eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlQGV4YW1wbGUuY29tIiwicHdkIjoiU29tZUVuY3J5cHRlZEluZm8i" +
+                "LCJleHAiOjE2ODczODIxNjAsImlhdCI6MTY4NzM0NjE2MH0.o-5KsMCtwcmurAP1XvaJcx1F3gtUUKo36rA5Bw8TDd8";
+
+        userDetails = Mockito.mock(UserDetails.class);
+        Mockito.when(userDetails.getUsername()).thenReturn(username);
+        Mockito.when(userDetails.getPassword()).thenReturn(pwd);
+        assertFalse(underTest.validateToken(expiredToken, userDetails));
+    }
     @Test
     void validateToken() {
         userDetails = Mockito.mock(UserDetails.class);
         Mockito.when(userDetails.getUsername()).thenReturn(username);
         Mockito.when(userDetails.getPassword()).thenReturn(pwd);
-        if(new Date().before(generateExampleDate("Wed Jun 21 23:16:00 CEST 2023")))
-            assertTrue(underTest.validateToken(exampleToken, userDetails));
-        else
-            assertFalse(underTest.validateToken(exampleToken, userDetails));
+        assertTrue(underTest.validateToken(newToken(), userDetails));
     }
 
-    private Date generateExampleDate(String date){
-        String dateString = "2023-06-21 23:16:00";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private String newToken(){
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("pwd",pwd);
 
-        try {
-            LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
-            return  Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-        } catch (DateTimeParseException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    private Claims generateExampleClaims(){
-        return Jwts.parser().setSigningKey("TiteRuso").parseClaimsJws(exampleToken).getBody();
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(username)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                //With this we set the expiration in 10 hours
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 *60 * 60 * 10))
+                .signWith(SignatureAlgorithm.HS256, secret).compact();
     }
 }

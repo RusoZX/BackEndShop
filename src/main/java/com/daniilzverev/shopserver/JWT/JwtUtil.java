@@ -1,8 +1,10 @@
 package com.daniilzverev.shopserver.JWT;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Date;
@@ -10,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+@Slf4j
 public class JwtUtil {
     private String secret = "TiteRuso";
 
@@ -57,10 +60,16 @@ public class JwtUtil {
     }
 
     public Boolean validateToken(String token, UserDetails userDetails){
-        final String username= extractUserName(token);
-        final String pwd = extractPwd(token);
-        return username.equals(userDetails.getUsername())
-                && pwd.equals(userDetails.getPassword())
-                && !isTokenExpired(token);
+        try {
+            final String username= extractUserName(token);
+            final String pwd = extractPwd(token);
+
+            return username.equals(userDetails.getUsername())
+                    && pwd.equals(userDetails.getPassword())
+                    && !isTokenExpired(token);
+        }catch(ExpiredJwtException ex){
+            log.error("TOKEN EXPIRED :"+ex.getLocalizedMessage());
+            return false;
+        }
     }
 }

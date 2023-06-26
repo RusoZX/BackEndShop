@@ -105,6 +105,18 @@ class UserRestImplTest {
         assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}", response);
     }
 
+    @Test
+    public void logInWithCorrectData() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("email","example@example.com");
+        requestMap.put("pwd","someEncryptedData");
+
+        MvcResult result = mockMvc.perform(post("/user/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isOk())
+                .andReturn();
+    }
     private String requestMapToJson(Map<String, String> requestMap) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.writeValueAsString(requestMap);

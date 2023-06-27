@@ -1,9 +1,11 @@
 package com.daniilzverev.shopserver.serviceImpl;
 
 import com.daniilzverev.shopserver.JWT.CustomerUsersDetailsService;
+import com.daniilzverev.shopserver.JWT.JwtFilter;
 import com.daniilzverev.shopserver.JWT.JwtUtil;
 import com.daniilzverev.shopserver.constants.Constants;
 import com.daniilzverev.shopserver.dao.UserDao;
+import com.daniilzverev.shopserver.entity.Product;
 import com.daniilzverev.shopserver.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,8 +20,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -36,6 +39,9 @@ class UserServiceImplTest {
 
     @Mock
     private JwtUtil jwtUtil;
+
+    @Mock
+    private JwtFilter jwtFilter;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -151,13 +157,41 @@ class UserServiceImplTest {
     public void loginBadData() {
         Map<String, String> requestMap = new HashMap<>();
 
-
-        String pwd = "someEncryptedData";
-
         ResponseEntity<String> response = userService.login(requestMap);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}" , response.getBody());
+    }
+    @Test
+    public void getUserData(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
+
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+
+        User user = new User();
+        user.setId(-1L);
+        user.setName("test");
+        user.setSurname("test1");
+        user.setEmail("example1@example.com");
+        user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
+        user.setPwd("someEncryptedData");
+        user.setRole("client");
+        user.setShoppingCart(new HashSet<Product>());
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
+
+        User expected = new User();
+        expected.setEmail(user.getEmail());
+        expected.setName(user.getName());
+        expected.setBirthDate(user.getBirthDate());
+        expected.setSurname(user.getSurname());
+
+        ResponseEntity<User> response = userService.getUserData();
+
+        assertEquals(expected.getEmail(), response.getBody().getEmail());
+        assertEquals(expected.getName(), response.getBody().getName());
+        assertEquals(expected.getBirthDate(), response.getBody().getBirthDate());
+        assertEquals(expected.getSurname(), response.getBody().getSurname());
     }
 
 

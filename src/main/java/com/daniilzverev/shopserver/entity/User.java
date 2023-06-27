@@ -8,6 +8,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 //This annotation will create all the getters/setters needed
@@ -54,6 +55,7 @@ public class User implements Serializable {
     public boolean equals(Object toCompare){
         if(toCompare instanceof User){
             User user =(User) toCompare;
+
             return this.id.equals(user.id) &&
                     this.name.equals(user.name) &&
                     this.surname.equals(user.surname) &&
@@ -64,4 +66,5 @@ public class User implements Serializable {
         }
         return false;
     }
+
 }

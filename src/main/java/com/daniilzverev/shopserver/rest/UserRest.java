@@ -1,5 +1,6 @@
 package com.daniilzverev.shopserver.rest;
 
+import com.daniilzverev.shopserver.entity.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,7 @@ public interface UserRest {
     @PostMapping(path="/login")
     ResponseEntity<String> login(@RequestBody Map<String, String> requestMap);
 
-    
+    @GetMapping(path="/profile")
+    ResponseEntity<User> getUserData();
 
 }

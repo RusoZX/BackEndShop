@@ -1,5 +1,6 @@
 package com.daniilzverev.shopserver.restImpl;
 
+import com.daniilzverev.shopserver.JWT.JwtUtil;
 import com.daniilzverev.shopserver.constants.Constants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +18,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -28,6 +30,9 @@ class UserRestImplTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Test
     public void signUpWithCorrectData() throws Exception{
@@ -146,8 +151,33 @@ class UserRestImplTest {
 
         assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}", response);
     }
+    @Test
+    public void getProfile() throws Exception{
+
+        MvcResult result = mockMvc.perform(get("/user/profile")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData")))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"id\":null,\"name\":\"test\",\"surname\":\"test1\",\"birthDate\":\"2001-09-11\"," +
+                "\"email\":\"example1@example.com\",\"pwd\":null,\"role\":null,\"shoppingCart\":[]}"
+                , response);
+    }
+    @Test
+    public void getProfileNoAuth() throws Exception{
+
+        mockMvc.perform(get("/user/profile")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("nobody","someEncryptedData")))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+
     private String requestMapToJson(Map<String, String> requestMap) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.writeValueAsString(requestMap);
     }
+
 }

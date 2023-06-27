@@ -1,6 +1,7 @@
 package com.daniilzverev.shopserver.restImpl;
 
 import com.daniilzverev.shopserver.constants.Constants;
+import com.daniilzverev.shopserver.entity.User;
 import com.daniilzverev.shopserver.rest.UserRest;
 import com.daniilzverev.shopserver.service.UserService;
 import com.daniilzverev.shopserver.utils.Utils;
@@ -35,6 +36,16 @@ public class UserRestImpl implements UserRest {
             ex.printStackTrace();
         }
         return Utils.getResponseEntity(Constants.SERVER_ERROR,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<User> getUserData() {
+        try{
+            return userService.getUserData();
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return new ResponseEntity<User>(new User(),HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.daniilzverev.shopserver.serviceImpl;
 
+import com.daniilzverev.shopserver.JWT.JwtFilter;
 import com.daniilzverev.shopserver.JWT.JwtUtil;
 import com.daniilzverev.shopserver.JWT.CustomerUsersDetailsService;
 import com.daniilzverev.shopserver.constants.Constants;
@@ -36,6 +37,9 @@ public class UserServiceImpl implements UserService {
     JwtUtil jwtUtil;
 
     @Autowired
+    JwtFilter jwtFilter;
+
+    @Autowired
     CustomerUsersDetailsService customerUserDetailsService;
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
@@ -66,9 +70,10 @@ public class UserServiceImpl implements UserService {
                 authManager.authenticate(
                         new UsernamePasswordAuthenticationToken(requestMap.get("email"),requestMap.get("pwd"))
                 );
+
                 return new ResponseEntity<String>("{\"token\":\"" +
                         jwtUtil.generateToken(customerUserDetailsService.getUserDetail().getEmail(),
-                                customerUserDetailsService.getUserDetail().getRole()) + "\"}"
+                                customerUserDetailsService.getUserDetail().getPwd()) + "\"}"
                         , HttpStatus.OK);
             }else
                 return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
@@ -79,6 +84,28 @@ public class UserServiceImpl implements UserService {
             ex.printStackTrace();
         }
         return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<User> getUserData() {
+        try{
+            log.info("User Trying to get profile information"+jwtFilter.getCurrentUser());
+            User user = userDao.findByEmail(jwtFilter.getCurrentUser());
+            if(!Objects.isNull(user)){
+                //now we create a new user with only the needed information
+                User toSend = new User();
+                toSend.setEmail(user.getEmail());
+                toSend.setName(user.getName());
+                toSend.setBirthDate(user.getBirthDate());
+                toSend.setSurname(user.getSurname());
+
+                return new ResponseEntity<User>(toSend, HttpStatus.OK);
+            }
+
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return new ResponseEntity<User>(new User(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private boolean checkLoginMap(Map<String,String> requestMap){

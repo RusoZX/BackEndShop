@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -62,19 +63,19 @@ public class UserServiceImpl implements UserService {
         log.info("User Trying to Log In:" + requestMap);
         try{
             if(checkLoginMap(requestMap)){
-                Authentication auth= authManager.authenticate(
+                authManager.authenticate(
                         new UsernamePasswordAuthenticationToken(requestMap.get("email"),requestMap.get("pwd"))
                 );
-                if(auth.isAuthenticated()){
-                    return new ResponseEntity<String>("{\"token\":\"" +
-                            jwtUtil.generateToken(customerUserDetailsService.getUserDetail().getEmail(),
-                                    customerUserDetailsService.getUserDetail().getRole()) + "\"}"
-                            , HttpStatus.OK);
-                }else
-                    return Utils.getResponseEntity(Constants.BAD_CREDENTIALS, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<String>("{\"token\":\"" +
+                        jwtUtil.generateToken(customerUserDetailsService.getUserDetail().getEmail(),
+                                customerUserDetailsService.getUserDetail().getRole()) + "\"}"
+                        , HttpStatus.OK);
             }else
                 return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
-        }catch(Exception ex){
+        }catch(BadCredentialsException e){
+            return Utils.getResponseEntity(Constants.BAD_CREDENTIALS, HttpStatus.BAD_REQUEST);
+        }
+        catch(Exception ex){
             ex.printStackTrace();
         }
         return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);

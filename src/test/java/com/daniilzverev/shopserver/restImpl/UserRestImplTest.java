@@ -108,7 +108,7 @@ class UserRestImplTest {
     @Test
     public void logInWithCorrectData() throws Exception{
         Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("email","example@example.com");
+        requestMap.put("email","example1@example.com");
         requestMap.put("pwd","someEncryptedData");
 
         MvcResult result = mockMvc.perform(post("/user/login")
@@ -116,6 +116,35 @@ class UserRestImplTest {
                 .content(requestMapToJson(requestMap)))
                 .andExpect(status().isOk())
                 .andReturn();
+    }
+    @Test
+    public void logInWithBadCredentials() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("email","example@example.com");
+        requestMap.put("pwd","someEncryptedData");
+
+        MvcResult result = mockMvc.perform(post("/user/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.BAD_CREDENTIALS+"\"}", response);
+    }
+    @Test
+    public void logInWithBadData() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("email","example1@example.com");
+
+        MvcResult result = mockMvc.perform(post("/user/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}", response);
     }
     private String requestMapToJson(Map<String, String> requestMap) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();

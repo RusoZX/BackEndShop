@@ -220,6 +220,8 @@ class UserServiceImplTest {
         ResponseEntity<String> response= userService.updateProfile(requestMap);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
+
+        //Validation to see if it was actually updated
     }
     @Test
     public void updateOnlySurname(){
@@ -245,6 +247,8 @@ class UserServiceImplTest {
         ResponseEntity<String> response= userService.updateProfile(requestMap);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
+
+        //Validation to see if it was actually updated
     }
     @Test
     public void updateOnlyBirthDay(){
@@ -263,8 +267,6 @@ class UserServiceImplTest {
         user.setShoppingCart(new HashSet<Product>());
 
         Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("surname","idk");
-        requestMap.put("name","idk");
         requestMap.put("birthday","2002-10-12");
 
         when(userDao.findByEmail("example1@example.com")).thenReturn(user);
@@ -272,6 +274,37 @@ class UserServiceImplTest {
         ResponseEntity<String> response= userService.updateProfile(requestMap);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
+
+        //Validation to see if it was actually updated
+    }
+    @Test
+    public void updateAllData(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
+
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+
+        User user = new User();
+        user.setId(-1L);
+        user.setName("test");
+        user.setSurname("test1");
+        user.setEmail("example1@example.com");
+        user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
+        user.setPwd("someEncryptedData");
+        user.setRole("client");
+        user.setShoppingCart(new HashSet<Product>());
+
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("name","idk");
+        requestMap.put("surname","idk1");
+        requestMap.put("birthday","2002-10-12");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
+
+        ResponseEntity<String> response= userService.updateProfile(requestMap);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
+
+        //Validation to see if it was actually updated
     }
     @Test
     public void updateWithNoData(){
@@ -320,6 +353,83 @@ class UserServiceImplTest {
         ResponseEntity<String> response= userService.updateProfile(requestMap);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}" , response.getBody() );
+    }
+    @Test
+    public void changePwdWithBadData(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
+
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+
+        User user = new User();
+        user.setId(-1L);
+        user.setName("test");
+        user.setSurname("test1");
+        user.setEmail("example1@example.com");
+        user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
+        user.setPwd("someEncryptedData");
+        user.setRole("client");
+        user.setShoppingCart(new HashSet<Product>());
+
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("surname","idk");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
+
+        ResponseEntity<String> response= userService.changePwd(requestMap);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}" , response.getBody() );
+    }
+    @Test
+    public void changePwdWithBadPwd(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
+
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+
+        User user = new User();
+        user.setId(-1L);
+        user.setName("test");
+        user.setSurname("test1");
+        user.setEmail("example1@example.com");
+        user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
+        user.setPwd("someEncryptedData");
+        user.setRole("client");
+        user.setShoppingCart(new HashSet<Product>());
+
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("oldPwd","idk");
+        requestMap.put("newPwd","idk");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
+
+        ResponseEntity<String> response= userService.changePwd(requestMap);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("{\"message\":\""+Constants.INVALID_PWD+"\"}" , response.getBody() );
+    }
+    @Test
+    public void changePwd(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
+
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+
+        User user = new User();
+        user.setId(-1L);
+        user.setName("test");
+        user.setSurname("test1");
+        user.setEmail("example1@example.com");
+        user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
+        user.setPwd("someEncryptedData");
+        user.setRole("client");
+        user.setShoppingCart(new HashSet<Product>());
+
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("oldPwd","someEncryptedData");
+        requestMap.put("newPwd","idk");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
+
+        ResponseEntity<String> response= userService.changePwd(requestMap);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
     }
 
 

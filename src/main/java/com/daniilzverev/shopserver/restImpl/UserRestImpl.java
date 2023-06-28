@@ -57,4 +57,14 @@ public class UserRestImpl implements UserRest {
         return Utils.getResponseEntity(Constants.SERVER_ERROR,HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @Override
+    public ResponseEntity<String> changePwd(Map<String, String> requestMap) {
+        try{
+            return userService.changePwd(requestMap);
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return Utils.getResponseEntity(Constants.SERVER_ERROR,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

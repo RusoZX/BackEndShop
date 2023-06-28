@@ -166,7 +166,7 @@ class UserRestImplTest {
                 , response);
     }
     @Test
-    public void getProfileNoAuth() throws Exception{
+    public void getProfileWithoutAuth() throws Exception{
 
         mockMvc.perform(get("/user/profile")
                 .header("Authorization", "Bearer "
@@ -208,6 +208,69 @@ class UserRestImplTest {
         requestMap.put("surname","idk");
 
         MvcResult result = mockMvc.perform(post("/user/profile/update")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.UPDATED+"\"}", response);
+    }
+
+    @Test
+    public void changePwdWithoutAuth() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("email","example1@example.com");
+
+        MvcResult result = mockMvc.perform(post("/user/profile/changepwd")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+
+    @Test
+    public void changePwdWithBadData() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("email","example1@example.com");
+
+        MvcResult result = mockMvc.perform(post("/user/profile/changepwd")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}", response);
+    }
+    @Test
+    public void changePwdWithBadPwd() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("oldPwd","example1@example.com");
+        requestMap.put("newPwd","newPwd");
+
+        MvcResult result = mockMvc.perform(post("/user/profile/changepwd")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.INVALID_PWD+"\"}", response);
+    }
+    @Test
+    public void changePwd() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("oldPwd","someEncryptedData");
+        requestMap.put("newPwd","newPwd");
+
+        MvcResult result = mockMvc.perform(post("/user/profile/changepwd")
                 .header("Authorization", "Bearer "
                         +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
                 .contentType(MediaType.APPLICATION_JSON)

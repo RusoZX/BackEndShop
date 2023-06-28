@@ -76,8 +76,7 @@ public class UserServiceImpl implements UserService {
                         jwtUtil.generateToken(customerUserDetailsService.getUserDetail().getEmail(),
                                 customerUserDetailsService.getUserDetail().getPwd()) + "\"}"
                         , HttpStatus.OK);
-            }else
-                return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+            }else return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
         }catch(BadCredentialsException e){
             return Utils.getResponseEntity(Constants.BAD_CREDENTIALS, HttpStatus.BAD_REQUEST);
         }
@@ -115,6 +114,7 @@ public class UserServiceImpl implements UserService {
             try{
                 log.info("User "+jwtFilter.getCurrentUser()+" Trying to update profile information :"+requestMap);
                 User user = userDao.findByEmail(jwtFilter.getCurrentUser());
+
                 if(!Objects.isNull(user)){
                     if(requestMap.containsKey("name"))
                         user.setName(requestMap.get("name"));
@@ -132,13 +132,34 @@ public class UserServiceImpl implements UserService {
             catch(Exception ex){
                 ex.printStackTrace();
             }
-        else
-            return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+        else return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
         //It will only get to here through an error
         return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
 
+    @Override
+    public ResponseEntity<String> changePwd(Map<String, String> requestMap) {
+        if(checkChangePwdMap(requestMap)){
+            log.info("User "+jwtFilter.getCurrentUser()+" Trying to change password :"+requestMap);
+            User user = userDao.findByEmail(jwtFilter.getCurrentUser());
+
+            if(!Objects.isNull(user))
+                if(user.getPwd().equals(requestMap.get("oldPwd"))){
+                    user.setPwd(requestMap.get("newPwd"));
+                    userDao.save(user);
+                    return Utils.getResponseEntity(Constants.UPDATED, HttpStatus.OK);
+
+                }else return Utils.getResponseEntity(Constants.INVALID_PWD, HttpStatus.BAD_REQUEST);
+        }
+        else return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+        //It will only get to here through an error
+        return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private boolean checkChangePwdMap(Map<String,String> requestMap){
+        return requestMap.containsKey("oldPwd")&&requestMap.containsKey("newPwd");
+    }
 
     private boolean checkUpdateMap(Map<String,String> requestMap){
         return requestMap.containsKey("name")||requestMap.containsKey("surname")

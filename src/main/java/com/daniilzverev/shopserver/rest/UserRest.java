@@ -24,4 +24,7 @@ public interface UserRest {
     @PostMapping(path="/profile/update")
     ResponseEntity<String> updateProfile(@RequestBody Map<String, String> requestMap);
 
+    @PostMapping(path="/profile/changepwd")
+    ResponseEntity<String> changePwd(@RequestBody Map<String, String> requestMap);
+
 }

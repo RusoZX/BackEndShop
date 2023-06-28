@@ -10,4 +10,6 @@ public interface UserService {
     ResponseEntity<String> login(Map<String, String> requestMap);
     ResponseEntity<User> getUserData();
     ResponseEntity<String> updateProfile(Map<String, String> requestMap);
+    ResponseEntity<String> changePwd(Map<String,String> requestMap);
+
 }

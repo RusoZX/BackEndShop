@@ -28,6 +28,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class UserServiceImplTest {
+
+
     @Mock
     private UserDao userDao;
 
@@ -193,6 +195,134 @@ class UserServiceImplTest {
         assertEquals(expected.getBirthDate(), response.getBody().getBirthDate());
         assertEquals(expected.getSurname(), response.getBody().getSurname());
     }
+    //ask How to implement correct test to see if the db was updated
+    @Test
+    public void updateOnlyName(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
+
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+
+        User user = new User();
+        user.setId(-1L);
+        user.setName("test");
+        user.setSurname("test1");
+        user.setEmail("example1@example.com");
+        user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
+        user.setPwd("someEncryptedData");
+        user.setRole("client");
+        user.setShoppingCart(new HashSet<Product>());
+
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("name","idk");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
+
+        ResponseEntity<String> response= userService.updateProfile(requestMap);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
+    }
+    @Test
+    public void updateOnlySurname(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
+
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+
+        User user = new User();
+        user.setId(-1L);
+        user.setName("test");
+        user.setSurname("test1");
+        user.setEmail("example1@example.com");
+        user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
+        user.setPwd("someEncryptedData");
+        user.setRole("client");
+        user.setShoppingCart(new HashSet<Product>());
+
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("surname","idk");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
+
+        ResponseEntity<String> response= userService.updateProfile(requestMap);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
+    }
+    @Test
+    public void updateOnlyBirthDay(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
+
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+
+        User user = new User();
+        user.setId(-1L);
+        user.setName("test");
+        user.setSurname("test1");
+        user.setEmail("example1@example.com");
+        user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
+        user.setPwd("someEncryptedData");
+        user.setRole("client");
+        user.setShoppingCart(new HashSet<Product>());
+
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("surname","idk");
+        requestMap.put("name","idk");
+        requestMap.put("birthday","2002-10-12");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
+
+        ResponseEntity<String> response= userService.updateProfile(requestMap);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
+    }
+    @Test
+    public void updateWithNoData(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
+
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+
+        User user = new User();
+        user.setId(-1L);
+        user.setName("test");
+        user.setSurname("test1");
+        user.setEmail("example1@example.com");
+        user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
+        user.setPwd("someEncryptedData");
+        user.setRole("client");
+        user.setShoppingCart(new HashSet<Product>());
+
+        Map<String, String> requestMap = new HashMap<>();
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
+
+        ResponseEntity<String> response= userService.updateProfile(requestMap);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}" , response.getBody() );
+    }
+    @Test
+    public void updateWithBadDate(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
+
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+
+        User user = new User();
+        user.setId(-1L);
+        user.setName("test");
+        user.setSurname("test1");
+        user.setEmail("example1@example.com");
+        user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
+        user.setPwd("someEncryptedData");
+        user.setRole("client");
+        user.setShoppingCart(new HashSet<Product>());
+
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("birthday","badformat");
+        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
+
+        ResponseEntity<String> response= userService.updateProfile(requestMap);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}" , response.getBody() );
+    }
+
+
 
 
 }

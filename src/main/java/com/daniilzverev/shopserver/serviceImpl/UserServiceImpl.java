@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -106,6 +107,42 @@ public class UserServiceImpl implements UserService {
             ex.printStackTrace();
         }
         return new ResponseEntity<User>(new User(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> updateProfile(Map<String, String> requestMap) {
+        if(checkUpdateMap(requestMap))
+            try{
+                log.info("User "+jwtFilter.getCurrentUser()+" Trying to update profile information :"+requestMap);
+                User user = userDao.findByEmail(jwtFilter.getCurrentUser());
+                if(!Objects.isNull(user)){
+                    if(requestMap.containsKey("name"))
+                        user.setName(requestMap.get("name"));
+                    if(requestMap.containsKey("surname"))
+                        user.setSurname(requestMap.get("surname"));
+                    if(requestMap.containsKey("birthday"))
+                        user.setBirthDate(LocalDate.parse(requestMap.get("birthday"),formatter));
+
+                    userDao.save(user);
+                    return Utils.getResponseEntity(Constants.UPDATED, HttpStatus.OK);
+                }
+            }catch(DateTimeParseException e){
+                return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+            }
+            catch(Exception ex){
+                ex.printStackTrace();
+            }
+        else
+            return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+        //It will only get to here through an error
+        return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+
+    }
+
+
+    private boolean checkUpdateMap(Map<String,String> requestMap){
+        return requestMap.containsKey("name")||requestMap.containsKey("surname")
+                ||requestMap.containsKey("birthday");
     }
 
     private boolean checkLoginMap(Map<String,String> requestMap){

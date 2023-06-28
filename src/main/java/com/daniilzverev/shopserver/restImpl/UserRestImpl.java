@@ -47,5 +47,14 @@ public class UserRestImpl implements UserRest {
         }
         return new ResponseEntity<User>(new User(),HttpStatus.INTERNAL_SERVER_ERROR);
     }
+    @Override
+    public ResponseEntity<String> updateProfile(Map<String, String> requestMap) {
+        try{
+            return userService.updateProfile(requestMap);
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return Utils.getResponseEntity(Constants.SERVER_ERROR,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
 }

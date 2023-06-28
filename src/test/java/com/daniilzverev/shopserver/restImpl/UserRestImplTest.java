@@ -174,6 +174,50 @@ class UserRestImplTest {
                 .andExpect(status().isForbidden())
                 .andReturn();
     }
+    @Test
+    public void updateWithoutAuth() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("email","example1@example.com");
+
+        MvcResult result = mockMvc.perform(post("/user/profile/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+    @Test
+    public void updateWithBadData() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("email","example1@example.com");
+
+        MvcResult result = mockMvc.perform(post("/user/profile/update")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}", response);
+    }
+    @Test
+    public void updateCorrectly() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("name","idk");
+        requestMap.put("surname","idk");
+
+        MvcResult result = mockMvc.perform(post("/user/profile/update")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.UPDATED+"\"}", response);
+    }
 
     private String requestMapToJson(Map<String, String> requestMap) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();

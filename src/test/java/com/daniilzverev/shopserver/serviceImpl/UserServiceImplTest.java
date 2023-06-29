@@ -195,7 +195,6 @@ class UserServiceImplTest {
         assertEquals(expected.getBirthDate(), response.getBody().getBirthDate());
         assertEquals(expected.getSurname(), response.getBody().getSurname());
     }
-    //ask How to implement correct test to see if the db was updated
     @Test
     public void updateOnlyName(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
@@ -222,6 +221,7 @@ class UserServiceImplTest {
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
 
         //Validation to see if it was actually updated
+        verify(userDao).save(user);
     }
     @Test
     public void updateOnlySurname(){
@@ -249,6 +249,7 @@ class UserServiceImplTest {
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
 
         //Validation to see if it was actually updated
+        verify(userDao).save(user);
     }
     @Test
     public void updateOnlyBirthDay(){
@@ -276,6 +277,7 @@ class UserServiceImplTest {
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
 
         //Validation to see if it was actually updated
+        verify(userDao).save(user);
     }
     @Test
     public void updateAllData(){
@@ -305,6 +307,7 @@ class UserServiceImplTest {
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
 
         //Validation to see if it was actually updated
+        verify(userDao).save(user);
     }
     @Test
     public void updateWithNoData(){
@@ -430,6 +433,8 @@ class UserServiceImplTest {
         ResponseEntity<String> response= userService.changePwd(requestMap);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
+
+        verify(userDao).save(user);
     }
 
 

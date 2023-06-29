@@ -6,6 +6,9 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
+@NamedQuery(name="ShoppingCart.findByProductAndClient",
+                query="select i from ShoppingCart as i where i.user.id = :userId and i.product.id = :productId")
+
 @Data
 @Entity
 @DynamicUpdate

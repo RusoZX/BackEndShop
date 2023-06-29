@@ -65,6 +65,44 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @Override
+    public ResponseEntity<String> removeOfCart(Map<String, String> requestMap) {
+        if(checkRemoveFromCartMap(requestMap))
+            try{
+                log.info("User "+jwtFilter.getCurrentUser()+" Trying to add product to shopping cart:"+requestMap);
+                User user = userDao.findByEmail(jwtFilter.getCurrentUser());
+                if(!Objects.isNull(user)){
+                    Optional<Product> optProduct = productDao.findById(Long.parseLong(requestMap.get("productId")));
+                    if(optProduct.isPresent()){
+                        ShoppingCart existingItem =
+                                shoppingCartDao.findByProductAndClient( optProduct.get().getId(), user.getId());
+                        if(!Objects.isNull(existingItem)) {
+                            shoppingCartDao.delete(existingItem);
+                            return Utils.getResponseEntity(Constants.REMOVED, HttpStatus.OK);
+                        } else return Utils.getResponseEntity(Constants.ITEM_DONT_EXIST, HttpStatus.BAD_REQUEST);
+                    }else
+                        return Utils.getResponseEntity(Constants.PRODUCT_DONT_EXIST, HttpStatus.BAD_REQUEST);
+                }
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+
+        else return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+        //It will only get to here through an error
+        return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private boolean checkRemoveFromCartMap(Map<String, String> requestMap){
+        if(requestMap.containsKey("productId"))
+            try{
+                Long.parseLong(requestMap.get("productId"));
+                return true;
+            }catch (NumberFormatException e){
+                log.error("Bad Number format in Add To Cart Petition");
+            }
+        return false;
+    }
+
     private boolean checkAddToCartMap(Map<String, String> requestMap){
         if(requestMap.containsKey("productId")&&requestMap.containsKey("quantity"))
             try{

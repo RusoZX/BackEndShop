@@ -2,7 +2,6 @@ package com.daniilzverev.shopserver.restImpl;
 
 import com.daniilzverev.shopserver.JWT.JwtUtil;
 import com.daniilzverev.shopserver.constants.Constants;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -126,5 +125,76 @@ class ShoppingCartRestImplTest {
                 .content(requestMapToJson(requestMap)))
                 .andExpect(status().isForbidden())
                 .andReturn();
+    }
+    @Test
+    void removeFromCartWithBadData() throws Exception {
+        Map<String,String> requestMap= new HashMap<>();
+
+        MvcResult result = mockMvc.perform(post("/cart/remove")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+ Constants.INVALID_DATA +"\"}", response);
+    }
+    @Test
+    void removeFromCartWithBadFormat() throws Exception {
+        Map<String,String> requestMap= new HashMap<>();
+        requestMap.put("productId","badFormat");
+        MvcResult result = mockMvc.perform(post("/cart/remove")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+ Constants.INVALID_DATA +"\"}", response);
+    }
+    @Test
+    void removeFromCartWithBadProduct() throws Exception {
+        Map<String,String> requestMap= new HashMap<>();
+        requestMap.put("productId","badFormat");
+        MvcResult result = mockMvc.perform(post("/cart/remove")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+ Constants.PRODUCT_DONT_EXIST +"\"}", response);
+    }
+    @Test
+    void removeFromCartWithoutAuth() throws Exception {
+        Map<String,String> requestMap= new HashMap<>();
+        requestMap.put("productId","-1");
+        MvcResult result = mockMvc.perform(post("/cart/remove")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+    @Test
+    void removeFromCartWithCorrectData() throws Exception {
+        Map<String,String> requestMap= new HashMap<>();
+        requestMap.put("productId","-1");
+
+        MvcResult result = mockMvc.perform(post("/cart/remove")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+ Constants.REMOVED +"\"}", response);
     }
 }

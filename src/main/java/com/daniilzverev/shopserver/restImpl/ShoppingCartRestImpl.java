@@ -27,4 +27,14 @@ public class ShoppingCartRestImpl implements ShoppingCartRest {
         }
         return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @Override
+    public ResponseEntity<String> removeOfCart(Map<String, String> requestMap) {
+        try{
+            return shoppingCartService.removeOfCart(requestMap);
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

@@ -25,6 +25,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 @Sql(scripts = {"/insert_test_data_shopping_cart.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(scripts = {"/delete_test_data_shopping_cart.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
@@ -106,6 +107,76 @@ class ShoppingCartServiceImplTest {
         assertEquals("{\"message\":\"" + Constants.INVALID_DATA + "\"}", response.getBody());
     }
 
+    @Test
+    void removeOfCartWithCorrectData() {
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("productId", "-1");
+
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
+
+        when(productDao.findById(-1L)).thenReturn(Optional.of(giveTestProduct()));
+
+        when(shoppingCartDao.findByProductAndClient(-1L,-1L)).thenReturn(giveTestShoppingCart());
+        ResponseEntity<String> response = shoppingCartService.removeOfCart(requestMap);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("{\"message\":\"" + Constants.REMOVED + "\"}", response.getBody());
+
+        verify(shoppingCartDao).delete(giveTestShoppingCart());
+    }
+    @Test
+    void removeOfCartWithBadData() {
+        Map<String, String> requestMap = new HashMap<>();
+
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
+
+        when(productDao.findById(-1L)).thenReturn(Optional.of(giveTestProduct()));
+
+        when(shoppingCartDao.findByProductAndClient(-1L,-1L)).thenReturn(giveTestShoppingCart());
+        ResponseEntity<String> response = shoppingCartService.removeOfCart(requestMap);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("{\"message\":\"" + Constants.INVALID_DATA + "\"}", response.getBody());
+    }
+    @Test
+    void removeOfCartWithBadFormat() {
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("productId", "badFormat");
+
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
+
+        when(productDao.findById(-1L)).thenReturn(Optional.of(giveTestProduct()));
+
+        when(shoppingCartDao.findByProductAndClient(-1L,-1L)).thenReturn(giveTestShoppingCart());
+        ResponseEntity<String> response = shoppingCartService.removeOfCart(requestMap);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("{\"message\":\"" + Constants.INVALID_DATA + "\"}", response.getBody());
+    }
+    @Test
+    void removeOfCartWithBadProduct() {
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("productId", "0");
+
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
+
+        when(productDao.findById(-1L)).thenReturn(Optional.of(giveTestProduct()));
+
+        when(shoppingCartDao.findByProductAndClient(-1L,-1L)).thenReturn(giveTestShoppingCart());
+        ResponseEntity<String> response = shoppingCartService.removeOfCart(requestMap);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("{\"message\":\"" + Constants.PRODUCT_DONT_EXIST + "\"}", response.getBody());
+    }
+
 
     private User giveTestUser() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
@@ -135,6 +206,14 @@ class ShoppingCartServiceImplTest {
         product.setWeight(10f);
 
         return product;
+    }
+    private ShoppingCart giveTestShoppingCart(){
+        ShoppingCart cart = new ShoppingCart();
+        cart.setId(-1L);
+        cart.setProduct(giveTestProduct());
+        cart.setUser(giveTestUser());
+        cart.setQuantity(3);
+        return cart;
     }
 
 }

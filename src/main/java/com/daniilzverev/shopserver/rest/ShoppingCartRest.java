@@ -12,4 +12,6 @@ import java.util.Map;
 public interface ShoppingCartRest {
     @PostMapping("/add")
     ResponseEntity<String> addToCart(@RequestBody Map<String, String> requestMap);
+    @PostMapping("/remove")
+    ResponseEntity<String> removeOfCart(@RequestBody Map<String, String> requestMap);
 }

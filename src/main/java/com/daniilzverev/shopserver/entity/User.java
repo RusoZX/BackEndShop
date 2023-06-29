@@ -16,7 +16,7 @@ import java.util.Set;
 @Entity
 @DynamicUpdate
 @DynamicInsert
-@Table(name="user")
+@Table(name="`user`")
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -43,13 +43,6 @@ public class User implements Serializable {
     @Column(name="role")
     private String role;
 
-    @ManyToMany
-    @JoinTable(
-            name = "shoppingCart",
-            joinColumns = @JoinColumn(name = "userId"),
-            inverseJoinColumns = @JoinColumn(name = "productId")
-    )
-    private Set<Product> shoppingCart = new HashSet<>();
 
     @Override
     public boolean equals(Object toCompare){

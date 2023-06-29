@@ -13,7 +13,7 @@ import java.util.Set;
 @Entity
 @DynamicUpdate
 @DynamicInsert
-@Table(name="order")
+@Table(name= "`order`")
 public class Order implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -36,11 +36,4 @@ public class Order implements Serializable {
     @Column(name="deliveryMethod")
     private String deliveryMethod;
 
-    @ManyToMany
-    @JoinTable(
-            name = "goods",
-            joinColumns = @JoinColumn(name = "orderId"),
-            inverseJoinColumns = @JoinColumn(name = "productId")
-    )
-    private Set<Product> goods = new HashSet<>();
 }

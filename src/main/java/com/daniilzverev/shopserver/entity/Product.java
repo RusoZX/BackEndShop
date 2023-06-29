@@ -46,9 +46,4 @@ public class Product implements Serializable {
     @Column(name="stock")
     private Integer stock;
 
-    @ManyToMany(mappedBy = "goods")
-    private Set<Order> orders = new HashSet<>();
-
-    @ManyToMany(mappedBy = "shoppingCart")
-    private Set<User> users = new HashSet<>();
 }

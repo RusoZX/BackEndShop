@@ -178,7 +178,6 @@ class UserServiceImplTest {
         user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
         user.setPwd("someEncryptedData");
         user.setRole("client");
-        user.setShoppingCart(new HashSet<Product>());
 
         when(userDao.findByEmail("example1@example.com")).thenReturn(user);
 
@@ -209,7 +208,6 @@ class UserServiceImplTest {
         user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
         user.setPwd("someEncryptedData");
         user.setRole("client");
-        user.setShoppingCart(new HashSet<Product>());
 
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("name","idk");
@@ -237,7 +235,6 @@ class UserServiceImplTest {
         user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
         user.setPwd("someEncryptedData");
         user.setRole("client");
-        user.setShoppingCart(new HashSet<Product>());
 
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("surname","idk");
@@ -265,7 +262,6 @@ class UserServiceImplTest {
         user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
         user.setPwd("someEncryptedData");
         user.setRole("client");
-        user.setShoppingCart(new HashSet<Product>());
 
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("birthday","2002-10-12");
@@ -293,7 +289,6 @@ class UserServiceImplTest {
         user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
         user.setPwd("someEncryptedData");
         user.setRole("client");
-        user.setShoppingCart(new HashSet<Product>());
 
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("name","idk");
@@ -323,7 +318,6 @@ class UserServiceImplTest {
         user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
         user.setPwd("someEncryptedData");
         user.setRole("client");
-        user.setShoppingCart(new HashSet<Product>());
 
         Map<String, String> requestMap = new HashMap<>();
 
@@ -347,7 +341,6 @@ class UserServiceImplTest {
         user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
         user.setPwd("someEncryptedData");
         user.setRole("client");
-        user.setShoppingCart(new HashSet<Product>());
 
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("birthday","badformat");
@@ -371,7 +364,6 @@ class UserServiceImplTest {
         user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
         user.setPwd("someEncryptedData");
         user.setRole("client");
-        user.setShoppingCart(new HashSet<Product>());
 
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("surname","idk");
@@ -396,7 +388,6 @@ class UserServiceImplTest {
         user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
         user.setPwd("someEncryptedData");
         user.setRole("client");
-        user.setShoppingCart(new HashSet<Product>());
 
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("oldPwd","idk");
@@ -422,7 +413,6 @@ class UserServiceImplTest {
         user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
         user.setPwd("someEncryptedData");
         user.setRole("client");
-        user.setShoppingCart(new HashSet<Product>());
 
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("oldPwd","someEncryptedData");
@@ -436,8 +426,5 @@ class UserServiceImplTest {
 
         verify(userDao).save(user);
     }
-
-
-
-
+    
 }

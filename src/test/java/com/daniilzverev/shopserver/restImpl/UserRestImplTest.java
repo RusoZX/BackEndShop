@@ -2,8 +2,6 @@ package com.daniilzverev.shopserver.restImpl;
 
 import com.daniilzverev.shopserver.JWT.JwtUtil;
 import com.daniilzverev.shopserver.constants.Constants;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -20,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import static com.daniilzverev.shopserver.utils.Utils.requestMapToJson;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -116,7 +116,7 @@ class UserRestImplTest {
         requestMap.put("email","example1@example.com");
         requestMap.put("pwd","someEncryptedData");
 
-        MvcResult result = mockMvc.perform(post("/user/login")
+        mockMvc.perform(post("/user/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestMapToJson(requestMap)))
                 .andExpect(status().isOk())
@@ -224,7 +224,7 @@ class UserRestImplTest {
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("email","example1@example.com");
 
-        MvcResult result = mockMvc.perform(post("/user/profile/changepwd")
+        mockMvc.perform(post("/user/profile/changepwd")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestMapToJson(requestMap)))
                 .andExpect(status().isForbidden())
@@ -282,9 +282,6 @@ class UserRestImplTest {
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}", response);
     }
 
-    private String requestMapToJson(Map<String, String> requestMap) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(requestMap);
-    }
+
 
 }

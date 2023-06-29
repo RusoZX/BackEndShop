@@ -196,56 +196,38 @@ class UserServiceImplTest {
     }
     @Test
     public void updateOnlyName(){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
-
         when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
-
-        User user = new User();
-        user.setId(-1L);
-        user.setName("test");
-        user.setSurname("test1");
-        user.setEmail("example1@example.com");
-        user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
-        user.setPwd("someEncryptedData");
-        user.setRole("client");
 
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("name","idk");
 
-        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
         ResponseEntity<String> response= userService.updateProfile(requestMap);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
 
         //Validation to see if it was actually updated
+        User user = giveTestUser();
+        user.setSurname("idk");
         verify(userDao).save(user);
     }
     @Test
     public void updateOnlySurname(){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
-
         when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
-
-        User user = new User();
-        user.setId(-1L);
-        user.setName("test");
-        user.setSurname("test1");
-        user.setEmail("example1@example.com");
-        user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
-        user.setPwd("someEncryptedData");
-        user.setRole("client");
 
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("surname","idk");
 
-        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
         ResponseEntity<String> response= userService.updateProfile(requestMap);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
 
         //Validation to see if it was actually updated
+        User user = giveTestUser();
+        user.setSurname("idk");
         verify(userDao).save(user);
     }
     @Test
@@ -254,25 +236,20 @@ class UserServiceImplTest {
 
         when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
 
-        User user = new User();
-        user.setId(-1L);
-        user.setName("test");
-        user.setSurname("test1");
-        user.setEmail("example1@example.com");
-        user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
-        user.setPwd("someEncryptedData");
-        user.setRole("client");
 
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("birthday","2002-10-12");
 
-        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
         ResponseEntity<String> response= userService.updateProfile(requestMap);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
 
         //Validation to see if it was actually updated
+        User user = giveTestUser();
+        user.setBirthDate(LocalDate.parse("2002-10-12", formatter));
+
         verify(userDao).save(user);
     }
     @Test
@@ -281,47 +258,32 @@ class UserServiceImplTest {
 
         when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
 
-        User user = new User();
-        user.setId(-1L);
-        user.setName("test");
-        user.setSurname("test1");
-        user.setEmail("example1@example.com");
-        user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
-        user.setPwd("someEncryptedData");
-        user.setRole("client");
-
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("name","idk");
         requestMap.put("surname","idk1");
         requestMap.put("birthday","2002-10-12");
 
-        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
         ResponseEntity<String> response= userService.updateProfile(requestMap);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
 
         //Validation to see if it was actually updated
+        User user = giveTestUser();
+        user.setName("idk");
+        user.setSurname("idk1");
+        user.setBirthDate(LocalDate.parse("2002-10-12", formatter));
+
         verify(userDao).save(user);
     }
     @Test
     public void updateWithNoData(){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
-
         when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
-
-        User user = new User();
-        user.setId(-1L);
-        user.setName("test");
-        user.setSurname("test1");
-        user.setEmail("example1@example.com");
-        user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
-        user.setPwd("someEncryptedData");
-        user.setRole("client");
 
         Map<String, String> requestMap = new HashMap<>();
 
-        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
         ResponseEntity<String> response= userService.updateProfile(requestMap);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -329,22 +291,12 @@ class UserServiceImplTest {
     }
     @Test
     public void updateWithBadDate(){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
 
         when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
 
-        User user = new User();
-        user.setId(-1L);
-        user.setName("test");
-        user.setSurname("test1");
-        user.setEmail("example1@example.com");
-        user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
-        user.setPwd("someEncryptedData");
-        user.setRole("client");
-
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("birthday","badformat");
-        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
         ResponseEntity<String> response= userService.updateProfile(requestMap);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -352,23 +304,13 @@ class UserServiceImplTest {
     }
     @Test
     public void changePwdWithBadData(){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
 
         when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
-
-        User user = new User();
-        user.setId(-1L);
-        user.setName("test");
-        user.setSurname("test1");
-        user.setEmail("example1@example.com");
-        user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
-        user.setPwd("someEncryptedData");
-        user.setRole("client");
 
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("surname","idk");
 
-        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
         ResponseEntity<String> response= userService.changePwd(requestMap);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -376,24 +318,14 @@ class UserServiceImplTest {
     }
     @Test
     public void changePwdWithBadPwd(){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
 
         when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
-
-        User user = new User();
-        user.setId(-1L);
-        user.setName("test");
-        user.setSurname("test1");
-        user.setEmail("example1@example.com");
-        user.setBirthDate(LocalDate.parse("2001-09-11",formatter));
-        user.setPwd("someEncryptedData");
-        user.setRole("client");
 
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("oldPwd","idk");
         requestMap.put("newPwd","idk");
 
-        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
         ResponseEntity<String> response= userService.changePwd(requestMap);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -401,10 +333,26 @@ class UserServiceImplTest {
     }
     @Test
     public void changePwd(){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
 
         when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
 
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("oldPwd","someEncryptedData");
+        requestMap.put("newPwd","idk");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
+
+        ResponseEntity<String> response= userService.changePwd(requestMap);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
+
+        User user = giveTestUser();
+        user.setPwd("idk");
+
+        verify(userDao).save(user);
+    }
+    private User giveTestUser(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
         User user = new User();
         user.setId(-1L);
         user.setName("test");
@@ -414,17 +362,7 @@ class UserServiceImplTest {
         user.setPwd("someEncryptedData");
         user.setRole("client");
 
-        Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("oldPwd","someEncryptedData");
-        requestMap.put("newPwd","idk");
-
-        when(userDao.findByEmail("example1@example.com")).thenReturn(user);
-
-        ResponseEntity<String> response= userService.changePwd(requestMap);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
-
-        verify(userDao).save(user);
+        return user;
     }
-    
+
 }

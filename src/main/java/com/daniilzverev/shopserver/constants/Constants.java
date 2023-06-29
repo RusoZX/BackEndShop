@@ -11,4 +11,6 @@ public class Constants {
     public static final String USER_EXISTS = "User already exists";
     public static final String BAD_CREDENTIALS = "Bad credentials";
     public static final String UPDATED = "Successfully updated";
+    public static final String PRODUCT_DONT_EXIST = "Successfully updated";
+    public static final String ITEM_ADDED = "Successfully added product to cart";
 }

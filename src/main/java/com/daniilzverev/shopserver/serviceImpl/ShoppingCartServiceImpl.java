@@ -16,9 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -39,7 +37,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public ResponseEntity<String> addToCart(Map<String, String> requestMap) {
-        if(checkAddToCartMap(requestMap))
+        if(checkAddOrEditCartMap(requestMap))
             try{
                 log.info("User "+jwtFilter.getCurrentUser()+" Trying to add product to shopping cart:"+requestMap);
                 User user = userDao.findByEmail(jwtFilter.getCurrentUser());
@@ -69,17 +67,78 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public ResponseEntity<String> removeOfCart(Map<String, String> requestMap) {
         if(checkRemoveFromCartMap(requestMap))
             try{
-                log.info("User "+jwtFilter.getCurrentUser()+" Trying to add product to shopping cart:"+requestMap);
+                log.info("User "+jwtFilter.getCurrentUser()+" Trying to remove product to shopping cart:"+requestMap);
                 User user = userDao.findByEmail(jwtFilter.getCurrentUser());
                 if(!Objects.isNull(user)){
                     Optional<Product> optProduct = productDao.findById(Long.parseLong(requestMap.get("productId")));
                     if(optProduct.isPresent()){
                         ShoppingCart existingItem =
-                                shoppingCartDao.findByProductAndClient( optProduct.get().getId(), user.getId());
+                                shoppingCartDao.findByProductAndUser( optProduct.get().getId(), user.getId());
                         if(!Objects.isNull(existingItem)) {
                             shoppingCartDao.delete(existingItem);
                             return Utils.getResponseEntity(Constants.REMOVED, HttpStatus.OK);
                         } else return Utils.getResponseEntity(Constants.ITEM_DONT_EXIST, HttpStatus.BAD_REQUEST);
+                    }else
+                        return Utils.getResponseEntity(Constants.PRODUCT_DONT_EXIST, HttpStatus.BAD_REQUEST);
+                }
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+
+        else return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+        //It will only get to here through an error
+        return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> removeAllOfCart() {
+        try{
+            log.info("User "+jwtFilter.getCurrentUser()+" Trying to clean shopping cart");
+            User user = userDao.findByEmail(jwtFilter.getCurrentUser());
+            if(!Objects.isNull(user)){
+                shoppingCartDao.deleteAllByUserId(user.getId());
+                return Utils.getResponseEntity(Constants.REMOVED, HttpStatus.OK);
+            }
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        //It will only get to here through an error
+        return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<Product>> getCart() {
+        try{
+            log.info("User "+jwtFilter.getCurrentUser()+" Trying to clean shopping cart");
+            User user = userDao.findByEmail(jwtFilter.getCurrentUser());
+            if(!Objects.isNull(user)){
+                List<Product> result = productDao.findAllInShoppingCart(user.getId());
+                return new ResponseEntity<List<Product>>(result,HttpStatus.OK);
+            }
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        //It will only get to here through an error
+        return new ResponseEntity<List<Product>>(new ArrayList<Product>(),HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> editCart(Map<String, String> requestMap) {
+        if(checkAddOrEditCartMap(requestMap))
+            try{
+                log.info("User "+jwtFilter.getCurrentUser()+" Trying to edit product to shopping cart:"+requestMap);
+                User user = userDao.findByEmail(jwtFilter.getCurrentUser());
+                if(!Objects.isNull(user)){
+                    Optional<Product> optProduct = productDao.findById(Long.parseLong(requestMap.get("productId")));
+                    if(optProduct.isPresent()){
+                        ShoppingCart item=
+                                shoppingCartDao.findByProductAndUser(optProduct.get().getId(),user.getId());
+                        if(!Objects.isNull(item)){
+                            item.setQuantity(Integer.parseInt(requestMap.get("quantity")));
+                            shoppingCartDao.save(item);
+                            return Utils.getResponseEntity(Constants.UPDATED, HttpStatus.OK);
+                        }else
+                            return Utils.getResponseEntity(Constants.ITEM_DONT_EXIST, HttpStatus.BAD_REQUEST);
                     }else
                         return Utils.getResponseEntity(Constants.PRODUCT_DONT_EXIST, HttpStatus.BAD_REQUEST);
                 }
@@ -103,12 +162,12 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return false;
     }
 
-    private boolean checkAddToCartMap(Map<String, String> requestMap){
+    private boolean checkAddOrEditCartMap(Map<String, String> requestMap){
         if(requestMap.containsKey("productId")&&requestMap.containsKey("quantity"))
             try{
                 Long.parseLong(requestMap.get("productId"));
-                Integer.parseInt(requestMap.get("quantity"));
-                return true;
+                if(Integer.parseInt(requestMap.get("quantity"))>0)
+                    return true;
             }catch (NumberFormatException e){
                 log.error("Bad Number format in Add To Cart Petition");
             }

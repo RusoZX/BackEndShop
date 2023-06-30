@@ -11,6 +11,8 @@ import org.springframework.test.context.jdbc.Sql;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,9 +32,48 @@ class ShoppingCartDaoTest {
         expected.setUser(giveTestUser());
         expected.setQuantity(3);
 
-        ShoppingCart actualResponse = underTest.findByProductAndClient(-1L,-1L);
+        ShoppingCart actualResponse = underTest.findByProductAndUser(-1L,-1L);
 
         assertEquals(expected,actualResponse);
+
+    }
+    @Test
+    void deleteAllByUserId(){
+        underTest.deleteAllByUserId(-1L);
+
+        List<ShoppingCart> response= underTest.findAllByUserId(-1L);
+
+        assertTrue(response.isEmpty());
+    }
+    @Test
+    void findAllByUserId() {
+        List<ShoppingCart> expected = new ArrayList<ShoppingCart>();
+        ShoppingCart cart = new ShoppingCart();
+        cart.setId(-2L);
+        cart.setUser(giveTestUser());
+
+        Product product = giveTestProduct();
+        product.setId(-2L);
+        product.setTitle("test4");
+        product.setCategory("test2");
+        product.setBrand("test1");
+        product.setColor("test3");
+        cart.setProduct(product);
+        cart.setQuantity(4);
+
+        expected.add(cart);
+
+        cart = new ShoppingCart();
+        cart.setId(-1L);
+        cart.setUser(giveTestUser());
+        cart.setProduct(giveTestProduct());
+        cart.setQuantity(3);
+
+        expected.add(cart);
+
+        List<ShoppingCart> actualResponse = underTest.findAllByUserId(-1L);
+
+        assertEquals(expected, actualResponse);
 
     }
     private User giveTestUser() {
@@ -64,4 +105,5 @@ class ShoppingCartDaoTest {
 
         return product;
     }
+
 }

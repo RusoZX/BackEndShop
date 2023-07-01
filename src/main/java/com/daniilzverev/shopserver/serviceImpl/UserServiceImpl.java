@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -140,21 +142,42 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<String> changePwd(Map<String, String> requestMap) {
-        if(checkChangePwdMap(requestMap)){
-            log.info("User "+jwtFilter.getCurrentUser()+" Trying to change password :"+requestMap);
+        try {
+            if (checkChangePwdMap(requestMap)) {
+                log.info("User " + jwtFilter.getCurrentUser() + " Trying to change password :" + requestMap);
+                User user = userDao.findByEmail(jwtFilter.getCurrentUser());
+
+                if (!Objects.isNull(user))
+                    if (user.getPwd().equals(requestMap.get("oldPwd"))) {
+                        user.setPwd(requestMap.get("newPwd"));
+                        userDao.save(user);
+                        return Utils.getResponseEntity(Constants.UPDATED, HttpStatus.OK);
+
+                    } else return Utils.getResponseEntity(Constants.INVALID_PWD, HttpStatus.BAD_REQUEST);
+            } else return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        //It will only get to here through an error
+        return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<User>> getUsers() {
+        try{
+            log.info("User "+jwtFilter.getCurrentUser()+" Trying to get list of users");
             User user = userDao.findByEmail(jwtFilter.getCurrentUser());
 
             if(!Objects.isNull(user))
-                if(user.getPwd().equals(requestMap.get("oldPwd"))){
-                    user.setPwd(requestMap.get("newPwd"));
-                    userDao.save(user);
-                    return Utils.getResponseEntity(Constants.UPDATED, HttpStatus.OK);
-
-                }else return Utils.getResponseEntity(Constants.INVALID_PWD, HttpStatus.BAD_REQUEST);
+                if(user.getRole().equals("employee"))
+                    return new ResponseEntity<List<User>>(userDao.findAll(), HttpStatus.OK);
+                else
+                    return new ResponseEntity<List<User>>(new ArrayList<User>(), HttpStatus.UNAUTHORIZED);
+        }catch (Exception ex){
+            ex.printStackTrace();
         }
-        else return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
         //It will only get to here through an error
-        return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<List<User>>(new ArrayList<User>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private boolean checkChangePwdMap(Map<String,String> requestMap){

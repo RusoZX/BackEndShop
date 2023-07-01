@@ -351,6 +351,30 @@ class UserServiceImplTest {
 
         verify(userDao).save(user);
     }
+    @Test
+    public void getUsers(){
+        when(jwtFilter.getCurrentUser()).thenReturn("employee@example.com");
+
+        User user= giveTestUser();
+        user.setId(-2L);
+        user.setEmail("employee@example.com");
+        user.setRole("employee");
+
+        when(userDao.findByEmail("employee@example.com")).thenReturn(user);
+
+        ResponseEntity<List<User>> response= userService.getUsers();
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        
+    }
+    @Test
+    public void getUsersWithoutAuth(){
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
+
+        ResponseEntity<List<User>> response= userService.getUsers();
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+    }
     private User giveTestUser(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
         User user = new User();

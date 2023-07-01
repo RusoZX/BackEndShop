@@ -3,6 +3,7 @@ package com.daniilzverev.shopserver.service;
 import com.daniilzverev.shopserver.entity.User;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
 import java.util.Map;
 
 public interface UserService {
@@ -11,4 +12,5 @@ public interface UserService {
     ResponseEntity<User> getUserData();
     ResponseEntity<String> updateProfile(Map<String, String> requestMap);
     ResponseEntity<String> changePwd(Map<String,String> requestMap);
+    ResponseEntity<List<User>> getUsers();
 }

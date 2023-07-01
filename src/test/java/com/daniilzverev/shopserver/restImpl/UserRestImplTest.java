@@ -168,20 +168,13 @@ class UserRestImplTest {
     @Test
     public void getProfileWithoutAuth() throws Exception{
 
-        mockMvc.perform(get("/user/profile")
-                .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("nobody","someEncryptedData")))
+        mockMvc.perform(get("/user/profile"))
                 .andExpect(status().isForbidden())
                 .andReturn();
     }
     @Test
     public void updateWithoutAuth() throws Exception{
-        Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("email","example1@example.com");
-
-        MvcResult result = mockMvc.perform(post("/user/profile/update")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestMapToJson(requestMap)))
+        mockMvc.perform(post("/user/profile/update"))
                 .andExpect(status().isForbidden())
                 .andReturn();
     }
@@ -221,12 +214,7 @@ class UserRestImplTest {
 
     @Test
     public void changePwdWithoutAuth() throws Exception{
-        Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("email","example1@example.com");
-
-        mockMvc.perform(post("/user/profile/changepwd")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestMapToJson(requestMap)))
+        mockMvc.perform(post("/user/profile/changepwd"))
                 .andExpect(status().isForbidden())
                 .andReturn();
     }
@@ -281,7 +269,34 @@ class UserRestImplTest {
 
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}", response);
     }
+    @Test
+    public void getUsersWithoutAuth() throws Exception{
+        mockMvc.perform(post("/user/users"))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+    @Test
+    public void getUsersBeingAClient() throws Exception{mockMvc.perform(get("/user/users")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("employee@example.com","someEncryptedData")))
+                .andExpect(status().isUnauthorized())
+                .andReturn();
+    }
+    @Test
+    public void getUsers() throws Exception{
+        MvcResult result = mockMvc.perform(get("/user/users")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("employee@example.com","someEncryptedData")))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
 
+        assertEquals("[{\"id\":-2,\"name\":\"test\",\"surname\":\"test1\",\"birthDate\":" +
+                "\"2001-09-11\",\"email\":\"employee@example.com\",\"pwd\":\"someEncryptedData\"," +
+                "\"role\":\"employee\"},{\"id\":-1,\"name\":\"test\",\"surname\":\"test1\",\"birthDate" +
+                "\":\"2001-09-11\",\"email\":\"example1@example.com\",\"pwd\":\"someEncryptedData\"," +
+                "\"role\":\"client\"}]", response);
+    }
 
 
 }

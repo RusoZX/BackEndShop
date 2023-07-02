@@ -1,4 +1,6 @@
-Delete from shopping_cart where user_id = -1;
-Delete from user where email = "example1@example.com";
-Delete from product where id = -1;
-Delete from product where id = -2;
+delete from user where id = -1;
+delete from user where id = -2;
+delete from product where id = -1;
+delete from product where id = -2;
+delete from product where id = -3;
+delete from product where title = "idk";

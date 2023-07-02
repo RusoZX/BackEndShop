@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,6 +28,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@SpringBootTest
 class UserServiceImplTest {
 
 
@@ -364,7 +366,7 @@ class UserServiceImplTest {
 
         ResponseEntity<List<User>> response= userService.getUsers();
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        
+
     }
     @Test
     public void getUsersWithoutAuth(){

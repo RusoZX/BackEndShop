@@ -55,7 +55,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                         return Utils.getResponseEntity(Constants.PRODUCT_DONT_EXIST, HttpStatus.BAD_REQUEST);
                 }
             }catch (Exception ex){
-                ex.printStackTrace();
+                log.error(ex.getLocalizedMessage());
             }
 
         else return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
@@ -82,7 +82,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                         return Utils.getResponseEntity(Constants.PRODUCT_DONT_EXIST, HttpStatus.BAD_REQUEST);
                 }
             }catch (Exception ex){
-                ex.printStackTrace();
+                log.error(ex.getLocalizedMessage());
             }
 
         else return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
@@ -116,7 +116,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                 return new ResponseEntity<List<Product>>(result,HttpStatus.OK);
             }
         }catch (Exception ex){
-            ex.printStackTrace();
+            log.error(ex.getLocalizedMessage());
         }
         //It will only get to here through an error
         return new ResponseEntity<List<Product>>(new ArrayList<Product>(),HttpStatus.INTERNAL_SERVER_ERROR);
@@ -143,7 +143,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                         return Utils.getResponseEntity(Constants.PRODUCT_DONT_EXIST, HttpStatus.BAD_REQUEST);
                 }
             }catch (Exception ex){
-                ex.printStackTrace();
+                log.error(ex.getLocalizedMessage());
             }
 
         else return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);

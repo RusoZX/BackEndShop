@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -60,7 +59,7 @@ public class UserServiceImpl implements UserService {
             else
                 return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
         }catch(Exception ex){
-            ex.printStackTrace();
+            log.error(ex.getLocalizedMessage());
         }
         return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -83,7 +82,7 @@ public class UserServiceImpl implements UserService {
             return Utils.getResponseEntity(Constants.BAD_CREDENTIALS, HttpStatus.BAD_REQUEST);
         }
         catch(Exception ex){
-            ex.printStackTrace();
+            log.error(ex.getLocalizedMessage());
         }
         return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -105,7 +104,7 @@ public class UserServiceImpl implements UserService {
             }
 
         }catch(Exception ex){
-            ex.printStackTrace();
+            log.error(ex.getLocalizedMessage());
         }
         return new ResponseEntity<User>(new User(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -132,7 +131,7 @@ public class UserServiceImpl implements UserService {
                 return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
             }
             catch(Exception ex){
-                ex.printStackTrace();
+                log.error(ex.getLocalizedMessage());
             }
         else return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
         //It will only get to here through an error
@@ -156,7 +155,7 @@ public class UserServiceImpl implements UserService {
                     } else return Utils.getResponseEntity(Constants.INVALID_PWD, HttpStatus.BAD_REQUEST);
             } else return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
         }catch (Exception ex){
-            ex.printStackTrace();
+            log.error(ex.getLocalizedMessage());
         }
         //It will only get to here through an error
         return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -174,7 +173,7 @@ public class UserServiceImpl implements UserService {
                 else
                     return new ResponseEntity<List<User>>(new ArrayList<User>(), HttpStatus.UNAUTHORIZED);
         }catch (Exception ex){
-            ex.printStackTrace();
+            log.error(ex.getLocalizedMessage());
         }
         //It will only get to here through an error
         return new ResponseEntity<List<User>>(new ArrayList<User>(), HttpStatus.INTERNAL_SERVER_ERROR);

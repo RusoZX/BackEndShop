@@ -8,15 +8,16 @@ import com.daniilzverev.shopserver.entity.Product;
 import com.daniilzverev.shopserver.entity.User;
 import com.daniilzverev.shopserver.service.ProductService;
 import com.daniilzverev.shopserver.utils.Utils;
+import com.daniilzverev.shopserver.wrapper.ProductWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -138,6 +139,74 @@ public class ProductServiceImpl implements ProductService {
             log.error(ex.getLocalizedMessage());
         }
             return new ResponseEntity<Product>(new Product(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<ProductWrapper>> getProducts(String method, String limit, String search) {
+        try{
+            log.info("Giving products filter by "+method+", limit "+limit+",search "+search);
+            if(checkGetProductsRequest(method,limit)){
+                Pageable requestLimit = PageRequest.of(0,Integer.parseInt(limit));
+                switch (method){
+                    case "None":
+                        return new ResponseEntity<List<ProductWrapper>>(
+                                productDao.findAllByNone(requestLimit),
+                                HttpStatus.OK);
+                    case "Title":
+                        if(!Objects.isNull(search))
+                            return new ResponseEntity<List<ProductWrapper>>(
+                                    productDao.findAllByTitle(search, requestLimit),
+                                    HttpStatus.OK);
+                        break;
+                    case "Category":
+                        if(!Objects.isNull(search))
+                            return new ResponseEntity<List<ProductWrapper>>(
+                                    productDao.findAllByCategory(search, requestLimit),
+                                    HttpStatus.OK);
+                        break;
+                    case "PriceAsc":
+                        return new ResponseEntity<List<ProductWrapper>>(
+                                productDao.findAllByPriceAsc(requestLimit),
+                                HttpStatus.OK);
+                    case "PriceDesc":
+                        return new ResponseEntity<List<ProductWrapper>>(
+                                productDao.findAllByPriceDesc(requestLimit),
+                                HttpStatus.OK);
+                    case "Brand":
+                        if(!Objects.isNull(search))
+                            return new ResponseEntity<List<ProductWrapper>>(
+                                    productDao.findAllByBrand(search, requestLimit),
+                                    HttpStatus.OK);
+                        break;
+                    case "Color":
+                        if(!Objects.isNull(search))
+                            return new ResponseEntity<List<ProductWrapper>>(
+                                    productDao.findAllByColor(search, requestLimit),
+                                    HttpStatus.OK);
+                        break;
+                }
+
+            }
+            //If it got here it means that search, method or limit had bad format
+            return new ResponseEntity<List<ProductWrapper>>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
+        }catch (Exception ex){
+            log.error(ex.getLocalizedMessage());
+        }
+            return new ResponseEntity<List<ProductWrapper>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
+
+    private boolean checkGetProductsRequest(String method, String limit){
+        if(!Objects.isNull(method)&&!Objects.isNull(limit))
+            try{
+                Integer limitInt = Integer.parseInt(limit);
+                if(limitInt>0)
+                    return true;
+            }catch (NumberFormatException e){
+                log.error("Number format exception with limit");
+            }
+        return false;
     }
 
     private boolean checkAddProductMap(Map<String, String> requestMap){

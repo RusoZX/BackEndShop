@@ -15,7 +15,7 @@ public interface ProductDao extends JpaRepository<Product, Long> {
 
     @Query("select new com.daniilzverev.shopserver.wrapper.ProductWrapper(p.id, p.title, p.price, p.stock)" +
             " from Product p")
-    List<ProductWrapper> findAllWrapper(Pageable pageable);
+    List<ProductWrapper> findAllByNone(Pageable pageable);
 
     @Query("select new com.daniilzverev.shopserver.wrapper.ProductWrapper(p.id, p.title, p.price, p.stock)" +
             " from Product p where p.category like %:category%")

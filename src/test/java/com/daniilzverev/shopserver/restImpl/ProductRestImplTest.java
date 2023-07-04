@@ -3,11 +3,15 @@ package com.daniilzverev.shopserver.restImpl;
 import com.daniilzverev.shopserver.JWT.JwtUtil;
 import com.daniilzverev.shopserver.constants.Constants;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -28,7 +32,7 @@ import static com.daniilzverev.shopserver.utils.Utils.requestMapToJson;
 @AutoConfigureMockMvc
 @Sql(scripts = {"/insert_test_data_product.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(scripts = {"/delete_test_data_product.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-
+@ActiveProfiles("withJwtUtilAutowired")
 class ProductRestImplTest {
 
     @Autowired
@@ -193,12 +197,6 @@ class ProductRestImplTest {
 
         assertEquals("{\"message\":\""+ Constants.INVALID_DATA+"\"}", response);
     }
-    @Test
-    void addProductWithoutAuth() throws Exception{
-        mockMvc.perform(post("/product/add"))
-                .andExpect(status().isForbidden())
-                .andReturn();
-    }
 
     @Test
     void editProductWithCorrectData() throws Exception {
@@ -358,12 +356,7 @@ class ProductRestImplTest {
 
         assertEquals("{\"message\":\""+ Constants.INVALID_DATA+"\"}", response);
     }
-    @Test
-    void editProductWithoutAuth() throws Exception{
-        mockMvc.perform(post("/product/edit"))
-                .andExpect(status().isForbidden())
-                .andReturn();
-    }
+
     @Test
     void removeProduct() throws Exception {
         Map<String,String> requestMap= new HashMap<>();
@@ -443,12 +436,43 @@ class ProductRestImplTest {
 
         assertEquals("{\"message\":\""+ Constants.INVALID_DATA+"\"}", response);
     }
+    //Fix those tests
+    @Test
+    void addProductWithoutAuth() throws Exception{
+
+        mockMvc.perform(post("/product/add"))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+
+    @Test
+    void editProductWithoutAuth() throws Exception{
+        mockMvc.perform(post("/product/edit"))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
     @Test
     void removeProductWithoutAuth() throws Exception{
         mockMvc.perform(post("/product/remove"))
                 .andExpect(status().isForbidden())
                 .andReturn();
     }
+
+}
+
+/*I had to separate the tests between the ones that need a token an the ones that dont need it
+because when i run all the tests it creates the JwtUtils class empty when its not used and it gives problems */
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@Sql(scripts = {"/insert_test_data_product.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = {"/delete_test_data_product.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+@ActiveProfiles("withoutJwtUtil")
+class TestWithoutJwtUtil {
+    @Autowired
+    private MockMvc mockMvc;
+
+
     @Test
     void getProduct() throws Exception{
         MvcResult result = mockMvc.perform(get("/product/-1"))
@@ -465,9 +489,239 @@ class ProductRestImplTest {
         mockMvc.perform(get("/product/0"))
                 .andExpect(status().isNotFound());
     }
+
     @Test
     void getProductBadFormat() throws Exception{
         mockMvc.perform(get("/product/badFormat"))
                 .andExpect(status().isBadRequest());
     }
+    @Test
+    void getProductsBadUrl1() throws Exception{
+        mockMvc.perform(get("/product/getBy"))
+                .andExpect(status().isBadRequest());
+    }
+    @Test
+    void getProductsBadUrl2() throws Exception{
+        mockMvc.perform(get("/product/getByIDK"))
+                .andExpect(status().isBadRequest());
+    }
+    @Test
+    void getProductsBadUrl3() throws Exception{
+        mockMvc.perform(get("/product/getByNone"))
+                .andExpect(status().isBadRequest());
+    }
+    @Test
+    void getProductsBadUrl4() throws Exception{
+        mockMvc.perform(get("/product/getByNone?limit=idk"))
+                .andExpect(status().isBadRequest());
+    }
+    @Test
+    void getProductsBadUrl5() throws Exception{
+        mockMvc.perform(get("/product/getByCategory?limit=5"))
+                .andExpect(status().isBadRequest());
+    }
+    @Test
+    void getProductsByNoneLimit5() throws Exception{
+        MvcResult result = mockMvc.perform(get("/product/getByNone?limit=5"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[{\"id\":-15,\"title\":\"title\",\"price\":15.0,\"stock\":10}," +
+                "{\"id\":-14,\"title\":\"title\",\"price\":14.0,\"stock\":10}," +
+                "{\"id\":-13,\"title\":\"title\",\"price\":13.0,\"stock\":10}" +
+                ",{\"id\":-12,\"title\":\"title\",\"price\":12.0,\"stock\":10}," +
+                "{\"id\":-11,\"title\":\"title\",\"price\":11.0,\"stock\":10}]", response);
+    }
+    @Test
+    void getProductsByNoneLimit10() throws Exception{
+        MvcResult result = mockMvc.perform(get("/product/getByNone?limit=10"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[{\"id\":-15,\"title\":\"title\",\"price\":15.0,\"stock\":10}," +
+                "{\"id\":-14,\"title\":\"title\",\"price\":14.0,\"stock\":10}," +
+                "{\"id\":-13,\"title\":\"title\",\"price\":13.0,\"stock\":10}," +
+                "{\"id\":-12,\"title\":\"title\",\"price\":12.0,\"stock\":10}," +
+                "{\"id\":-11,\"title\":\"title\",\"price\":11.0,\"stock\":10}," +
+                "{\"id\":-10,\"title\":\"test4\",\"price\":10.0,\"stock\":10}," +
+                "{\"id\":-9,\"title\":\"test3\",\"price\":9.0,\"stock\":10}," +
+                "{\"id\":-8,\"title\":\"test3\",\"price\":8.0,\"stock\":10}" +
+                ",{\"id\":-7,\"title\":\"test3\",\"price\":7.0,\"stock\":10}" +
+                ",{\"id\":-6,\"title\":\"test3\",\"price\":6.0,\"stock\":10}]", response);
+    }
+    @Test
+    void getProductsByCategoryLimit5() throws Exception{
+        MvcResult result = mockMvc.perform(get("/product/getByCategory?limit=5&search=category"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[{\"id\":-9,\"title\":\"test3\",\"price\":9.0,\"stock\":10}," +
+                "{\"id\":-8,\"title\":\"test3\",\"price\":8.0,\"stock\":10}," +
+                "{\"id\":-7,\"title\":\"test3\",\"price\":7.0,\"stock\":10}," +
+                "{\"id\":-6,\"title\":\"test3\",\"price\":6.0,\"stock\":10}," +
+                "{\"id\":-5,\"title\":\"test3\",\"price\":5.0,\"stock\":10}]", response);
+    }
+    @Test
+    void getProductsByCategoryLimit10() throws Exception{
+        MvcResult result = mockMvc.perform(get("/product/getByCategory?limit=10&search=category"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[{\"id\":-9,\"title\":\"test3\",\"price\":9.0,\"stock\":10}," +
+                "{\"id\":-8,\"title\":\"test3\",\"price\":8.0,\"stock\":10}," +
+                "{\"id\":-7,\"title\":\"test3\",\"price\":7.0,\"stock\":10}," +
+                "{\"id\":-6,\"title\":\"test3\",\"price\":6.0,\"stock\":10}," +
+                "{\"id\":-5,\"title\":\"test3\",\"price\":5.0,\"stock\":10}]", response);
+    }
+    @Test
+    void getProductsByPriceDescLimit5() throws Exception{
+        MvcResult result = mockMvc.perform(get("/product/getByPriceDesc?limit=5"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[{\"id\":-15,\"title\":\"title\",\"price\":15.0,\"stock\":10}," +
+                "{\"id\":-14,\"title\":\"title\",\"price\":14.0,\"stock\":10}," +
+                "{\"id\":-13,\"title\":\"title\",\"price\":13.0,\"stock\":10}" +
+                ",{\"id\":-12,\"title\":\"title\",\"price\":12.0,\"stock\":10}," +
+                "{\"id\":-11,\"title\":\"title\",\"price\":11.0,\"stock\":10}]", response);
+    }
+    @Test
+    void getProductsByPriceDescLimit10() throws Exception{
+        MvcResult result = mockMvc.perform(get("/product/getByPriceDesc?limit=10"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[{\"id\":-15,\"title\":\"title\",\"price\":15.0,\"stock\":10}," +
+                "{\"id\":-14,\"title\":\"title\",\"price\":14.0,\"stock\":10}," +
+                "{\"id\":-13,\"title\":\"title\",\"price\":13.0,\"stock\":10}," +
+                "{\"id\":-12,\"title\":\"title\",\"price\":12.0,\"stock\":10}," +
+                "{\"id\":-11,\"title\":\"title\",\"price\":11.0,\"stock\":10}," +
+                "{\"id\":-10,\"title\":\"test4\",\"price\":10.0,\"stock\":10}," +
+                "{\"id\":-2,\"title\":\"test4\",\"price\":10.0,\"stock\":10}," +
+                "{\"id\":-1,\"title\":\"test3\",\"price\":10.0,\"stock\":10}," +
+                "{\"id\":-9,\"title\":\"test3\",\"price\":9.0,\"stock\":10}," +
+                "{\"id\":-8,\"title\":\"test3\",\"price\":8.0,\"stock\":10}]", response);
+    }
+    @Test
+    void getProductsByPriceAscLimit5() throws Exception{
+        MvcResult result = mockMvc.perform(get("/product/getByPriceAsc?limit=5"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[{\"id\":-3,\"title\":\"idk\",\"price\":3.14,\"stock\":4}," +
+                "{\"id\":-4,\"title\":\"test4\",\"price\":4.0,\"stock\":10}," +
+                "{\"id\":-5,\"title\":\"test3\",\"price\":5.0,\"stock\":10}," +
+                "{\"id\":-6,\"title\":\"test3\",\"price\":6.0,\"stock\":10}," +
+                "{\"id\":-7,\"title\":\"test3\",\"price\":7.0,\"stock\":10}]", response);
+    }
+    @Test
+    void getProductsByPriceAscLimit10() throws Exception{
+        MvcResult result = mockMvc.perform(get("/product/getByPriceAsc?limit=10"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[{\"id\":-3,\"title\":\"idk\",\"price\":3.14,\"stock\":4}," +
+                "{\"id\":-4,\"title\":\"test4\",\"price\":4.0,\"stock\":10}," +
+                "{\"id\":-5,\"title\":\"test3\",\"price\":5.0,\"stock\":10}," +
+                "{\"id\":-6,\"title\":\"test3\",\"price\":6.0,\"stock\":10}," +
+                "{\"id\":-7,\"title\":\"test3\",\"price\":7.0,\"stock\":10}," +
+                "{\"id\":-8,\"title\":\"test3\",\"price\":8.0,\"stock\":10}," +
+                "{\"id\":-9,\"title\":\"test3\",\"price\":9.0,\"stock\":10}," +
+                "{\"id\":-10,\"title\":\"test4\",\"price\":10.0,\"stock\":10}," +
+                "{\"id\":-2,\"title\":\"test4\",\"price\":10.0,\"stock\":10}," +
+                "{\"id\":-1,\"title\":\"test3\",\"price\":10.0,\"stock\":10}]", response);
+    }
+    @Test
+    void getProductsByBrandLimit5() throws Exception{
+        MvcResult result = mockMvc.perform(get("/product/getByBrand?limit=5&search=brand"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[{\"id\":-6,\"title\":\"test3\",\"price\":6.0,\"stock\":10}," +
+                "{\"id\":-5,\"title\":\"test3\",\"price\":5.0,\"stock\":10}," +
+                "{\"id\":-4,\"title\":\"test4\",\"price\":4.0,\"stock\":10}]",
+                response);
+    }
+    @Test
+    void getProductsByBrandLimit10() throws Exception{
+        MvcResult result = mockMvc.perform(get("/product/getByBrand?limit=10&search=test1"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[{\"id\":-15,\"title\":\"title\",\"price\":15.0,\"stock\":10}," +
+                "{\"id\":-14,\"title\":\"title\",\"price\":14.0,\"stock\":10}," +
+                "{\"id\":-13,\"title\":\"title\",\"price\":13.0,\"stock\":10}" +
+                ",{\"id\":-12,\"title\":\"title\",\"price\":12.0,\"stock\":10}," +
+                "{\"id\":-11,\"title\":\"title\",\"price\":11.0,\"stock\":10}," +
+                "{\"id\":-10,\"title\":\"test4\",\"price\":10.0,\"stock\":10}," +
+                "{\"id\":-9,\"title\":\"test3\",\"price\":9.0,\"stock\":10}," +
+                "{\"id\":-8,\"title\":\"test3\",\"price\":8.0,\"stock\":10}," +
+                "{\"id\":-7,\"title\":\"test3\",\"price\":7.0,\"stock\":10}," +
+                "{\"id\":-2,\"title\":\"test4\",\"price\":10.0,\"stock\":10}]", response);
+    }
+    @Test
+    void getProductsByColorLimit5() throws Exception{
+        MvcResult result = mockMvc.perform(get("/product/getByColor?limit=5&search=color"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[{\"id\":-12,\"title\":\"title\",\"price\":12.0,\"stock\":10}," +
+                "{\"id\":-11,\"title\":\"title\",\"price\":11.0,\"stock\":10}" +
+                ",{\"id\":-10,\"title\":\"test4\",\"price\":10.0,\"stock\":10}," +
+                "{\"id\":-9,\"title\":\"test3\",\"price\":9.0,\"stock\":10}," +
+                "{\"id\":-8,\"title\":\"test3\"" +
+                ",\"price\":8.0,\"stock\":10}]", response);
+    }
+    @Test
+    void getProductsByColorLimit10() throws Exception{
+        MvcResult result = mockMvc.perform(get("/product/getByColor?limit=10&search=test3"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[{\"id\":-15,\"title\":\"title\",\"price\":15.0,\"stock\":10}," +
+                "{\"id\":-14,\"title\":\"title\",\"price\":14.0,\"stock\":10}," +
+                "{\"id\":-13,\"title\":\"title\",\"price\":13.0,\"stock\":10}," +
+                "{\"id\":-7,\"title\":\"test3\",\"price\":7.0,\"stock\":10}," +
+                "{\"id\":-6,\"title\":\"test3\",\"price\":6.0,\"stock\":10}," +
+                "{\"id\":-5,\"title\":\"test3\",\"price\":5.0,\"stock\":10}" +
+                ",{\"id\":-4,\"title\":\"test4\",\"price\":4.0,\"stock\":10}," +
+                "{\"id\":-2,\"title\":\"test4\",\"price\":10.0,\"stock\":10}]", response);
+    }
+    @Test
+    void getProductsByTitleLimit5() throws Exception{
+        MvcResult result = mockMvc.perform(get("/product/getByTitle?limit=5&search=title"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[{\"id\":-15,\"title\":\"title\",\"price\":15.0,\"stock\":10}," +
+                "{\"id\":-14,\"title\":\"title\",\"price\":14.0,\"stock\":10}," +
+                "{\"id\":-13,\"title\":\"title\",\"price\":13.0,\"stock\":10}" +
+                ",{\"id\":-12,\"title\":\"title\",\"price\":12.0,\"stock\":10}," +
+                "{\"id\":-11,\"title\":\"title\",\"price\":11.0,\"stock\":10}]", response);
+    }
+    @Test
+    void getProductsByTitleLimit10() throws Exception{
+        MvcResult result = mockMvc.perform(get("/product/getByTitle?limit=10&search=test4"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[{\"id\":-10,\"title\":\"test4\",\"price\":10.0,\"stock\":10}," +
+                "{\"id\":-4,\"title\":\"test4\",\"price\":4.0,\"stock\":10}," +
+                "{\"id\":-2,\"title\":\"test4\",\"price\":10.0,\"stock\":10}]", response);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.daniilzverev.shopserver.rest;
 
 import com.daniilzverev.shopserver.entity.Product;
+import com.daniilzverev.shopserver.wrapper.ProductWrapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +18,8 @@ public interface ProductRest {
     ResponseEntity<String> removeProduct(@RequestBody Map <String,String> requestMap);
     @GetMapping(path="/{productId}")
     ResponseEntity<Product> getProduct(@PathVariable Long productId);
-    /*@GetMapping(path="/getBy{method}")
-    ResponseEntity<List<Product>> getProducts(@PathVariable String method,
-                                             @RequestParam(value = "param1", required = false) String param1);*/
+    @GetMapping(path="/getBy{method}")
+    ResponseEntity<List<ProductWrapper>> getProducts(@PathVariable String method,
+                                                     @RequestParam(value = "limit") String limit,
+                                                     @RequestParam(value = "search", required = false) String search);
 }

@@ -5,6 +5,7 @@ import com.daniilzverev.shopserver.entity.Product;
 import com.daniilzverev.shopserver.rest.ProductRest;
 import com.daniilzverev.shopserver.service.ProductService;
 import com.daniilzverev.shopserver.utils.Utils;
+import com.daniilzverev.shopserver.wrapper.ProductWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,13 +60,13 @@ public class ProductRestImpl implements ProductRest {
         return new ResponseEntity<Product>(new Product(),HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    /*@Override
-    public ResponseEntity<List<Product>> getProducts(String method, String param1) {
+    @Override
+    public ResponseEntity<List<ProductWrapper>> getProducts(String method, String limit, String search) {
         try{
-            return productService.getProducts(method,param1);
+            return productService.getProducts(method,limit,search);
         }catch(Exception ex){
             ex.printStackTrace();
         }
-        return new ResponseEntity<List<Product>>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
-    }*/
+        return new ResponseEntity<List<ProductWrapper>>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

@@ -62,7 +62,7 @@ class ProductDaoTest {
         expected.add(new ProductWrapper(-6L,"test3",6F,10));
 
 
-        List<ProductWrapper> actualResponse = underTest.findAllWrapper(PageRequest.of(0, 10));
+        List<ProductWrapper> actualResponse = underTest.findAllByNone(PageRequest.of(0, 10));
 
         assertEquals(expected, actualResponse);
     }
@@ -77,7 +77,7 @@ class ProductDaoTest {
         expected.add(new ProductWrapper(-11L,"title",11F,10));
 
 
-        List<ProductWrapper> actualResponse = underTest.findAllWrapper(PageRequest.of(0, 5));
+        List<ProductWrapper> actualResponse = underTest.findAllByNone(PageRequest.of(0, 5));
 
         assertEquals(expected, actualResponse);
     }

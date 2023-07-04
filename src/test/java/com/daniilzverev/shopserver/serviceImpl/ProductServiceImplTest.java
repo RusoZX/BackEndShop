@@ -9,21 +9,21 @@ import com.daniilzverev.shopserver.entity.Product;
 import com.daniilzverev.shopserver.entity.User;
 import com.daniilzverev.shopserver.service.ProductService;
 import com.daniilzverev.shopserver.utils.Utils;
+import com.daniilzverev.shopserver.wrapper.ProductWrapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
@@ -302,6 +302,28 @@ class ProductServiceImplTest {
 
         assertEquals(HttpStatus.BAD_REQUEST,result.getStatusCode());
     }
+    //Ask if it is worth to test get in here since you have to mock the productDAo
+    /*@Test
+    void findAllLimit10(){
+        List<ProductWrapper> expected = new ArrayList<>();
+
+        expected.add(new ProductWrapper(-15L,"title",15F,10));
+        expected.add(new ProductWrapper(-14L,"title",14F,10));
+        expected.add(new ProductWrapper(-13L,"title",13F,10));
+        expected.add(new ProductWrapper(-12L,"title",12F,10));
+        expected.add(new ProductWrapper(-11L,"title",11F,10));
+        expected.add(new ProductWrapper(-10L,"test4",10F,10));
+        expected.add(new ProductWrapper(-9L,"test3",9F,10));
+        expected.add(new ProductWrapper(-8L,"test3",8F,10));
+        expected.add(new ProductWrapper(-7L,"test3",7F,10));
+        expected.add(new ProductWrapper(-6L,"test3",6F,10));
+
+
+        ResponseEntity<List<ProductWrapper>> actualResponse = underTest.getProducts("None", "10",null);
+
+        assertEquals(expected, actualResponse.getBody());
+    }
+    */
 
     private User giveTestUser(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);

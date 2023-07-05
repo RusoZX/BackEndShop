@@ -297,6 +297,357 @@ class UserRestImplTest {
                 "\":\"2001-09-11\",\"email\":\"example1@example.com\",\"pwd\":\"someEncryptedData\"," +
                 "\"role\":\"client\"}]", response);
     }
+    @Test
+    public void addAddress() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("country","idk");
+        requestMap.put("city","idk");
+        requestMap.put("postalCode","idk");
+        requestMap.put("street","idk");
+        requestMap.put("home","idk");
+        requestMap.put("apartment","idk");
+        requestMap.put("userId","-1");
 
+        MvcResult result = mockMvc.perform(get("/user/address/add")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.ADDRESS_ADDED+"\"}"
+                , response);
+    }
+    @Test
+    public void addAddressBadFormat() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("country","idk");
+        requestMap.put("city","idk");
+
+
+        MvcResult result = mockMvc.perform(post("/user/address/add")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}"
+                , response);
+    }
+    @Test
+    public void addAddressBadIdFormat() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("country","idk");
+        requestMap.put("city","idk");
+        requestMap.put("postalCode","idk");
+        requestMap.put("street","idk");
+        requestMap.put("home","idk");
+        requestMap.put("apartment","idk");
+        requestMap.put("userId","badFormat");
+
+        MvcResult result = mockMvc.perform(post("/user/address/add")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}"
+                , response);
+    }
+    @Test
+    public void addAddressBadUser() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("country","idk");
+        requestMap.put("city","idk");
+        requestMap.put("postalCode","idk");
+        requestMap.put("street","idk");
+        requestMap.put("home","idk");
+        requestMap.put("apartment","idk");
+        requestMap.put("userId","0");
+
+        MvcResult result = mockMvc.perform(post("/user/address/add")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}"
+                , response);
+    }
+    @Test
+    public void addAddressWithoutAuth() throws Exception{
+        mockMvc.perform(post("/user/address/add"))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+    @Test
+    public void editAddress() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("country","idk1");
+        requestMap.put("addressId","-1");
+
+        MvcResult result = mockMvc.perform(get("/user/address/edit")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.UPDATED+"\"}"
+                , response);
+    }
+    @Test
+    public void editAddressBadFormat() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("country","idk");
+        requestMap.put("city","idk");
+
+
+        MvcResult result = mockMvc.perform(post("/user/address/edit")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}"
+                , response);
+    }
+    @Test
+    public void editAddressBadIdFormat() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("country","idk");
+        requestMap.put("addressId","badFormat");
+
+        MvcResult result = mockMvc.perform(post("/user/address/edit")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}"
+                , response);
+    }
+    @Test
+    public void editAddressBadUser() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("country","idk1");
+        requestMap.put("addressId","-3");
+
+        MvcResult result = mockMvc.perform(post("/user/address/edit")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}"
+                , response);
+    }
+    @Test
+    public void editAddressBadAddress() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("country","idk1");
+        requestMap.put("addressId","0");
+
+        MvcResult result = mockMvc.perform(post("/user/address/edit")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.ADDRESS_DONT_EXIST+"\"}"
+                , response);
+    }
+    @Test
+    public void editAddressWithoutAuth() throws Exception{
+        mockMvc.perform(post("/user/address/edit"))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+    @Test
+    public void removeAddress() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("addressId","-1");
+
+        MvcResult result = mockMvc.perform(get("/user/address/remove")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.REMOVED+"\"}"
+                , response);
+    }
+    @Test
+    public void removeAddressBadFormat() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+
+        MvcResult result = mockMvc.perform(post("/user/address/remove")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}"
+                , response);
+    }
+    @Test
+    public void removeAddressBadIdFormat() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("addressId","badFormat");
+
+        MvcResult result = mockMvc.perform(post("/user/address/remove")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}"
+                , response);
+    }
+    @Test
+    public void removeAddressBadUser() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("addressId","-3");
+
+        MvcResult result = mockMvc.perform(post("/user/address/remove")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}"
+                , response);
+    }
+    @Test
+    public void removeAddressBadAddress() throws Exception{
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("addressId","0");
+
+        MvcResult result = mockMvc.perform(post("/user/address/remove")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+Constants.ADDRESS_DONT_EXIST+"\"}"
+                , response);
+    }
+    @Test
+    public void removeAddressWithoutAuth() throws Exception{
+        mockMvc.perform(post("/user/address/remove"))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+    @Test
+    public void getAllAddress() throws Exception{
+
+        MvcResult result = mockMvc.perform(get("/user/address/getAll")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData")))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[{\"id\":-2,\"city\":\"idk1\",\"street\":\"idk1\"}," +
+                        "{\"id\":-1,\"city\":\"idk\",\"street\":\"idk\"}]", response);
+    }
+    @Test
+    public void getAllAddress2() throws Exception{
+
+        MvcResult result = mockMvc.perform(get("/user/address/getAll")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("employee@example.com","someEncryptedData")))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[{\"id\":-3,\"city\":\"idk1\",\"street\":\"idk1\"}]", response);
+    }
+    @Test
+    public void getAllAddressWithoutAuth() throws Exception{
+        mockMvc.perform(post("/user/address/getAll"))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
+    //Fix the appearing user
+    @Test
+    public void getAddress() throws Exception{
+        MvcResult result = mockMvc.perform(get("/user/address/get-1")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData")))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"id\":-1,\"country\":\"idk\",\"city\":\"idk\"," +
+                "\"postalCode\":\"idk\",\"street\":\"idk\",\"home\":\"idk\",\"apartment\":\"idk\"}", response);
+    }
+    @Test
+    public void getAddressBadFormat() throws Exception{
+        mockMvc.perform(get("/user/address/get")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData")))
+                .andExpect(status().isBadRequest());
+    }
+    @Test
+    public void getAddressBadAddress() throws Exception{
+        mockMvc.perform(get("/user/address/get0")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData")))
+                .andExpect(status().isNotFound());
+    }
+    @Test
+    public void getAddressNotFromUser() throws Exception{
+        mockMvc.perform(get("/user/address/get-1")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("employee@example.com","someEncryptedData")))
+                .andExpect(status().isBadRequest());
+    }
+    @Test
+    public void getAddressWithoutAuth() throws Exception{
+        mockMvc.perform(post("/user/address/get-1"))
+                .andExpect(status().isForbidden())
+                .andReturn();
+    }
 
 }

@@ -41,4 +41,10 @@ public class Address implements Serializable {
     @ManyToOne
     @JoinColumn(name="userId")
     private User user;
+
+    public String toJson(){
+        return "{\"id\":"+this.id+",\"country\":\""+this.country+"\",\"city\":\""+this.city+
+                "\",\"postalCode\":\""+this.postalCode+"\",\"street\":\""+this.street+"\",\"home\":\""+this.home+
+                "\",\"apartment\":\""+this.apartment+"\"}";
+    }
 }

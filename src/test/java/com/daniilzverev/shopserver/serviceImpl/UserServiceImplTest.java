@@ -4,9 +4,12 @@ import com.daniilzverev.shopserver.JWT.CustomerUsersDetailsService;
 import com.daniilzverev.shopserver.JWT.JwtFilter;
 import com.daniilzverev.shopserver.JWT.JwtUtil;
 import com.daniilzverev.shopserver.constants.Constants;
+import com.daniilzverev.shopserver.dao.AddressDao;
 import com.daniilzverev.shopserver.dao.UserDao;
+import com.daniilzverev.shopserver.entity.Address;
 import com.daniilzverev.shopserver.entity.Product;
 import com.daniilzverev.shopserver.entity.User;
+import com.daniilzverev.shopserver.utils.Utils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -20,6 +23,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -28,12 +32,18 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+
 @SpringBootTest
+@Sql(scripts = {"/insert_test_data_user_rest.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = {"/delete_test_data_user_rest.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 class UserServiceImplTest {
 
 
     @Mock
     private UserDao userDao;
+
+    @Mock
+    private AddressDao addressDao;
 
     @Mock
     private CustomerUsersDetailsService customerUserDetailsService;
@@ -377,6 +387,161 @@ class UserServiceImplTest {
         ResponseEntity<List<User>> response= userService.getUsers();
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
     }
+    @Test
+    public void addAddress(){
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("country","idk");
+        requestMap.put("city","idk");
+        requestMap.put("postalCode","idk");
+        requestMap.put("street","idk");
+        requestMap.put("home","idk");
+        requestMap.put("apartment","idk");
+        requestMap.put("userId","-1");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
+
+        ResponseEntity<String> response= userService.addAddress(requestMap);
+        assertEquals(Utils.getResponseEntity(Constants.ADDRESS_ADDED,HttpStatus.OK), response);
+
+        verify(userService.addressDao).save(any());
+
+    }
+    @Test
+    public void editAddressCountry(){
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("country","idk1");
+        requestMap.put("addressId","-1");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
+
+        Address address = giveTestAddress();
+        address.setCountry("idk1");
+        when(addressDao.findById(-1L)).thenReturn(Optional.of(giveTestAddress()));
+
+        ResponseEntity<String> response= userService.editAddress(requestMap);
+        assertEquals(Utils.getResponseEntity(Constants.UPDATED,HttpStatus.OK), response);
+
+        verify(userService.addressDao).save(address);
+
+    }
+    @Test
+    public void editAddressCity(){
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("city","idk1");
+        requestMap.put("addressId","-1");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
+
+        Address address = giveTestAddress();
+        address.setCountry("idk1");
+
+        when(addressDao.findById(-1L)).thenReturn(Optional.of(giveTestAddress()));
+
+        ResponseEntity<String> response= userService.editAddress(requestMap);
+        assertEquals(Utils.getResponseEntity(Constants.UPDATED,HttpStatus.OK), response);
+
+        verify(userService.addressDao).save(address);
+
+    }
+    @Test
+    public void editAddressPostalCode(){
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("postalCode","idk1");
+        requestMap.put("addressId","-1");
+
+        when(addressDao.findById(-1L)).thenReturn(Optional.of(giveTestAddress()));
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
+
+        Address address = giveTestAddress();
+        address.setPostalCode("idk1");
+
+        ResponseEntity<String> response= userService.editAddress(requestMap);
+        assertEquals(Utils.getResponseEntity(Constants.UPDATED,HttpStatus.OK), response);
+
+        verify(userService.addressDao).save(address);
+
+    }
+    @Test
+    public void editAddressStreet(){
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("street","idk1");
+        requestMap.put("addressId","-1");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
+
+        Address address = giveTestAddress();
+        address.setStreet("idk1");
+
+        when(addressDao.findById(-1L)).thenReturn(Optional.of(giveTestAddress()));
+
+        ResponseEntity<String> response= userService.editAddress(requestMap);
+        assertEquals(Utils.getResponseEntity(Constants.UPDATED,HttpStatus.OK), response);
+
+        verify(userService.addressDao).save(address);
+
+    }
+    @Test
+    public void editAddressHome(){
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("home","idk1");
+        requestMap.put("addressId","-1");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
+
+        Address address = giveTestAddress();
+        address.setHome("idk1");
+
+        when(addressDao.findById(-1L)).thenReturn(Optional.of(giveTestAddress()));
+
+        ResponseEntity<String> response= userService.editAddress(requestMap);
+        assertEquals(Utils.getResponseEntity(Constants.UPDATED,HttpStatus.OK), response);
+
+        verify(userService.addressDao).save(address);
+
+    }
+    @Test
+    public void editAddressApartment(){
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("apartment","idk1");
+        requestMap.put("addressId","-1");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
+
+        Address address = giveTestAddress();
+        address.setApartment("idk1");
+
+        when(addressDao.findById(-1L)).thenReturn(Optional.of(giveTestAddress()));
+
+        ResponseEntity<String> response= userService.editAddress(requestMap);
+        assertEquals(Utils.getResponseEntity(Constants.UPDATED,HttpStatus.OK), response);
+
+        verify(userService.addressDao).save(address);
+    }
+    @Test
+    public void deleteAddress(){
+        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
+
+        Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("addressId","-1");
+
+        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
+
+        when(addressDao.findById(-1L)).thenReturn(Optional.of(giveTestAddress()));
+
+        ResponseEntity<String> response= userService.removeAddress(requestMap);
+
+        assertEquals(Utils.getResponseEntity(Constants.REMOVED,HttpStatus.OK), response);
+
+        verify(userService.addressDao).delete(giveTestAddress());
+    }
     private User giveTestUser(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
         User user = new User();
@@ -390,5 +555,19 @@ class UserServiceImplTest {
 
         return user;
     }
+    private Address giveTestAddress(){
+        Address address= new Address();
+        address.setId(-1L);
+        address.setCountry("idk");
+        address.setCity("idk");
+        address.setPostalCode("idk");
+        address.setStreet("idk");
+        address.setHome("idk");
+        address.setApartment("idk");
+        address.setUser(giveTestUser());
+
+        return address;
+    }
+
 
 }

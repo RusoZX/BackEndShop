@@ -4,10 +4,13 @@ import com.daniilzverev.shopserver.JWT.JwtFilter;
 import com.daniilzverev.shopserver.JWT.JwtUtil;
 import com.daniilzverev.shopserver.JWT.CustomerUsersDetailsService;
 import com.daniilzverev.shopserver.constants.Constants;
+import com.daniilzverev.shopserver.dao.AddressDao;
 import com.daniilzverev.shopserver.dao.UserDao;
+import com.daniilzverev.shopserver.entity.Address;
 import com.daniilzverev.shopserver.entity.User;
 import com.daniilzverev.shopserver.service.UserService;
 import com.daniilzverev.shopserver.utils.Utils;
+import com.daniilzverev.shopserver.wrapper.AddressWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,10 +23,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -31,6 +31,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     UserDao userDao;
+
+    @Autowired
+    AddressDao addressDao;
 
     @Autowired
     AuthenticationManager authManager;
@@ -179,8 +182,190 @@ public class UserServiceImpl implements UserService {
         return new ResponseEntity<List<User>>(new ArrayList<User>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @Override
+    public ResponseEntity<String> addAddress(Map<String, String> requestMap) {
+        try {
+            if (checkAddAddressMap(requestMap)) {
+                log.info("User " + jwtFilter.getCurrentUser() + " Trying to add an address :" + requestMap);
+                User user = userDao.findByEmail(jwtFilter.getCurrentUser());
+                if (!Objects.isNull(user)){
+                    Long userId = Long.parseLong(requestMap.get("userId"));
+                    if(user.getId().equals(userId)){
+                        Address address = new Address();
+                        address.setCountry(requestMap.get("country"));
+                        address.setCity(requestMap.get("city"));
+                        address.setPostalCode(requestMap.get("postalCode"));
+                        address.setStreet(requestMap.get("street"));
+                        address.setHome(requestMap.get("home"));
+                        address.setApartment(requestMap.get("apartment"));
+                        address.setUser(user);
+
+                        addressDao.save(address);
+                        return Utils.getResponseEntity(Constants.ADDRESS_ADDED, HttpStatus.OK);
+                    }else return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+                }
+            } else return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+        }catch (Exception ex){
+            log.error(ex.getLocalizedMessage());
+        }
+        //It will only get to here through an error
+        return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> editAddress(Map<String, String> requestMap) {
+        try {
+            if (checkEditAddressMap(requestMap)) {
+                log.info("User " + jwtFilter.getCurrentUser() + " Trying to edit an address :" + requestMap);
+                User user = userDao.findByEmail(jwtFilter.getCurrentUser());
+                if (!Objects.isNull(user)){
+                    Optional<Address> optAddress = addressDao.findById(Long.parseLong(requestMap.get("addressId")));
+                    if(optAddress.isPresent()){
+                        if(user.equals(optAddress.get().getUser())){
+                            Address address= optAddress.get();
+                            if(requestMap.containsKey("country"))
+                                address.setCountry(requestMap.get("country"));
+                            if(requestMap.containsKey("city"))
+                                address.setCity(requestMap.get("city"));
+                            if(requestMap.containsKey("postalCode"))
+                                address.setPostalCode(requestMap.get("postalCode"));
+                            if(requestMap.containsKey("street"))
+                                address.setStreet(requestMap.get("street"));
+                            if(requestMap.containsKey("home"))
+                                address.setHome(requestMap.get("home"));
+                            if(requestMap.containsKey("apartment"))
+                                address.setApartment(requestMap.get("apartment"));
+
+                            addressDao.save(address);
+                            return Utils.getResponseEntity(Constants.UPDATED, HttpStatus.OK);
+                        }else
+                            return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+                    }else
+                        return Utils.getResponseEntity(Constants.ADDRESS_DONT_EXIST, HttpStatus.BAD_REQUEST);
+                }
+            } else return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+        }catch (Exception ex){
+            log.error(ex.getLocalizedMessage());
+        }
+        //It will only get to here through an error
+        return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> removeAddress(Map<String, String> requestMap) {
+        try {
+            if (checkRemoveAddressMap(requestMap)) {
+                log.info("User " + jwtFilter.getCurrentUser() + " Trying to remove an address :" + requestMap);
+                User user = userDao.findByEmail(jwtFilter.getCurrentUser());
+                if (!Objects.isNull(user)){
+                    Optional<Address> optAddress = addressDao.findById(Long.parseLong(requestMap.get("addressId")));
+                    if(optAddress.isPresent()){
+                        if(user.equals(optAddress.get().getUser())){
+                            addressDao.delete(optAddress.get());
+                            return Utils.getResponseEntity(Constants.REMOVED, HttpStatus.OK);
+                        }else
+                            return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+                    }else
+                        return Utils.getResponseEntity(Constants.ADDRESS_DONT_EXIST, HttpStatus.BAD_REQUEST);
+                }
+            } else return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+        }catch (Exception ex){
+            log.error(ex.getLocalizedMessage());
+        }
+        //It will only get to here through an error
+        return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<AddressWrapper>> getAllAddress() {
+        try {
+            log.info("User " + jwtFilter.getCurrentUser() + " Trying to get addresses");
+            User user = userDao.findByEmail(jwtFilter.getCurrentUser());
+            if (!Objects.isNull(user)){
+                return new ResponseEntity<List<AddressWrapper>>(addressDao.findAllWrapper(user.getId()),
+                        HttpStatus.OK);
+            }
+        }catch (Exception ex){
+            log.error(ex.getLocalizedMessage());
+        }
+        //It will only get to here through an error
+        return new ResponseEntity<List<AddressWrapper>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> getAddress(String addressId) {
+        try {
+            if(checkAddressId(addressId)) {
+                log.info("User " + jwtFilter.getCurrentUser() + " Trying to get address "+addressId);
+                User user = userDao.findByEmail(jwtFilter.getCurrentUser());
+                if (!Objects.isNull(user)) {
+                    Optional<Address> optAddress = addressDao.findById(Long.parseLong(addressId));
+                    if(optAddress.isPresent()){
+                        if(user.equals(optAddress.get().getUser())){
+                            Address address = optAddress.get();
+                            return new ResponseEntity<String>(address.toJson(), HttpStatus.OK);
+                        }
+                        else
+                            return new ResponseEntity<String>("", HttpStatus.BAD_REQUEST);
+                    }else
+                        return new ResponseEntity<String>("", HttpStatus.NOT_FOUND);
+                }
+            }else
+                return new ResponseEntity<String>("", HttpStatus.BAD_REQUEST);
+        }catch (Exception ex){
+            log.error(ex.getLocalizedMessage());
+        }
+        //It will only get to here through an error
+        return new ResponseEntity<String>("", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
     private boolean checkChangePwdMap(Map<String,String> requestMap){
         return requestMap.containsKey("oldPwd")&&requestMap.containsKey("newPwd");
+    }
+
+    private boolean checkAddAddressMap(Map<String,String> requestMap){
+        if(requestMap.containsKey("country")&&requestMap.containsKey("city")
+                &&requestMap.containsKey("postalCode")&&requestMap.containsKey("street")
+                &&requestMap.containsKey("home")&&requestMap.containsKey("apartment")
+                &&requestMap.containsKey("userId"))
+            try{
+                Long.parseLong(requestMap.get("userId"));
+                return true;
+            }catch (NumberFormatException e){
+                log.error("User id bad format");
+            }
+        return false;
+    }
+    private boolean checkEditAddressMap(Map<String,String> requestMap){
+        if(requestMap.containsKey("addressId")&&(requestMap.containsKey("country")||requestMap.containsKey("city")
+                ||requestMap.containsKey("postalCode")||requestMap.containsKey("street")
+                ||requestMap.containsKey("home")||requestMap.containsKey("apartment")))
+            try{
+                Long.parseLong(requestMap.get("addressId"));
+                return true;
+            }catch (NumberFormatException e){
+                log.error("Address id bad format");
+            }
+        return false;
+    }
+    private boolean checkRemoveAddressMap(Map<String,String> requestMap){
+        if(requestMap.containsKey("addressId"))
+            try{
+                Long.parseLong(requestMap.get("addressId"));
+                return true;
+            }catch (NumberFormatException e){
+                log.error("Address id bad format");
+            }
+        return false;
+    }
+    private boolean checkAddressId(String addressId){
+        if(!Objects.isNull(addressId))
+            try{
+                Long.parseLong(addressId);
+                return true;
+            }catch (NumberFormatException e){
+                log.error("Address id bad format");
+            }
+        return false;
     }
 
     private boolean checkUpdateMap(Map<String,String> requestMap){

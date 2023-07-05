@@ -5,6 +5,7 @@ import com.daniilzverev.shopserver.entity.User;
 import com.daniilzverev.shopserver.rest.UserRest;
 import com.daniilzverev.shopserver.service.UserService;
 import com.daniilzverev.shopserver.utils.Utils;
+import com.daniilzverev.shopserver.wrapper.AddressWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -77,6 +78,57 @@ public class UserRestImpl implements UserRest {
             ex.printStackTrace();
         }
         return new ResponseEntity<List<User>>(new ArrayList<User>(),HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> addAddress(Map<String, String> requestMap) {
+        try{
+            return userService.addAddress(requestMap);
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return Utils.getResponseEntity(Constants.SERVER_ERROR,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> editAddress(Map<String, String> requestMap) {
+        try{
+            return userService.editAddress(requestMap);
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return Utils.getResponseEntity(Constants.SERVER_ERROR,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> removeAddress(Map<String, String> requestMap) {
+        try{
+            return userService.removeAddress(requestMap);
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return Utils.getResponseEntity(Constants.SERVER_ERROR,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<AddressWrapper>> getAllAddress() {
+        try{
+            return userService.getAllAddress();
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return new ResponseEntity<List<AddressWrapper>>(new ArrayList<AddressWrapper>(),HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> getAddress(String idAddress) {
+        try{
+            return userService.getAddress(idAddress);
+        }catch(Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return new ResponseEntity<String>("",HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 

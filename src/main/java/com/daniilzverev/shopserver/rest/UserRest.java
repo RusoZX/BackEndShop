@@ -1,11 +1,9 @@
 package com.daniilzverev.shopserver.rest;
 
 import com.daniilzverev.shopserver.entity.User;
+import com.daniilzverev.shopserver.wrapper.AddressWrapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -30,4 +28,19 @@ public interface UserRest {
 
     @GetMapping(path="/users")
     ResponseEntity<List<User>> getUsers();
+
+    @PostMapping(path="/address/add")
+    ResponseEntity<String> addAddress(@RequestBody Map<String, String> requestMap);
+
+    @PostMapping(path="/address/edit")
+    ResponseEntity<String> editAddress(@RequestBody Map<String, String> requestMap);
+
+    @DeleteMapping(path="/address/remove")
+    ResponseEntity<String> removeAddress(@RequestBody Map<String, String> requestMap);
+
+    @GetMapping(path="/address/getAll")
+    ResponseEntity<List<AddressWrapper>> getAllAddress();
+
+    @GetMapping(path="/address/get{idAddress}")
+    ResponseEntity<String> getAddress(@PathVariable String idAddress);
 }

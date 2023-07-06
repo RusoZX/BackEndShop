@@ -28,4 +28,9 @@ public class Goods {
 
     @Column(name="quantity")
     private Integer quantity;
+
+    public String toJson(){
+        return "{\"id\":"+this.id+",\"productId\":\""+this.product.getId()+"\",\"quantity\":\""+this.quantity+
+                "\"}";
+    }
 }

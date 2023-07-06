@@ -30,10 +30,23 @@ public class Order implements Serializable {
     @JoinColumn(name="userAddress")
     private Address address;
 
-    @Column(name="payment")
-    private String payment;
+    @Column(name="paymentMethod")
+    private String paymentMethod;
 
     @Column(name="deliveryMethod")
     private String deliveryMethod;
+
+    @Column(name="paymentStatus")
+    private Boolean paymentStatus;
+
+    @Column(name="orderStatus")
+    private String orderStatus;
+
+    public String toJson(){
+        return "{\"id\":"+this.id+",\"userId\":\""+this.user.getId()+"\",\"paymentMethod\":\""+this.paymentMethod+
+                "\",\"deliveryMethod\":\""+this.deliveryMethod+"\",\"paymentStatus\":\""+this.paymentStatus+
+                "\",\"orderStatus\":\""+this.orderStatus+
+                "\"}";
+    }
 
 }

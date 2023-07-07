@@ -302,6 +302,34 @@ class ProductServiceImplTest {
 
         assertEquals(HttpStatus.BAD_REQUEST,result.getStatusCode());
     }
+    @Test
+    void changeCategories() {
+        Map<String,String> requestMap= new HashMap<>();
+        requestMap.put("productList","[{\"id\":\"-15\"},{\"id\":\"-14\"}]");
+        requestMap.put("newCategory","newCategory");
+
+        when(jwtFilter.getCurrentUser()).thenReturn("employee@example.com");
+
+        when(userDao.findByEmail("employee@example.com")).thenReturn(giveTestUser());
+
+        when(productDao.findById(-15L)).thenReturn(Optional.of(giveTestProduct2()));
+        Product product = giveTestProduct2();
+        product.setId(-14L);
+        product.setPrice(-14F);
+        when(productDao.findById(-14L)).thenReturn(Optional.of(product));
+
+        ResponseEntity<String> result = underTest.changeCategories(requestMap);
+
+        assertEquals(Utils.getResponseEntity(Constants.UPDATED, HttpStatus.OK), result);
+        product = giveTestProduct2();
+        product.setCategory("newCategory");
+        verify(underTest.productDao).save(product);
+        product = giveTestProduct2();
+        product.setCategory("newCategory");
+        product.setId(-14L);
+        product.setPrice(-14F);
+        verify(underTest.productDao).save(product);
+    }
     //Ask if it is worth to test get in here since you have to mock the productDAo
     /*@Test
     void findAllLimit10(){
@@ -350,6 +378,21 @@ class ProductServiceImplTest {
         product.setWeight(10.4F);
         product.setVolume(10.5F);
         product.setStock(4);
+
+        return product;
+    }
+    private Product giveTestProduct2(){
+        Product product = new Product();
+
+        product.setId(-15L);
+        product.setTitle("title");
+        product.setPrice(15F);
+        product.setCategory("test2");
+        product.setBrand("test1");
+        product.setColor("test3");
+        product.setWeight(10F);
+        product.setVolume(10F);
+        product.setStock(10);
 
         return product;
     }

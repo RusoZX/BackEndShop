@@ -436,6 +436,90 @@ class ProductRestImplTest {
 
         assertEquals("{\"message\":\""+ Constants.INVALID_DATA+"\"}", response);
     }
+    @Test
+    void changeCategories() throws Exception {
+        Map<String,String> requestMap= new HashMap<>();
+        requestMap.put("productList","[{\"id\":\"-15\"},{\"id\":\"-14\"}]");
+        requestMap.put("newCategory","newCategory");
+
+        MvcResult result = mockMvc.perform(post("/product/changeCategories")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("employee@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+ Constants.UPDATED+"\"}", response);
+    }
+    @Test
+    void changeCategoriesBadFormat1() throws Exception {
+        Map<String,String> requestMap= new HashMap<>();
+        requestMap.put("productList","[{\"id\":\"-1\"},{\"id\":\"badFormat\"}]");
+        requestMap.put("newCategory","newCategory");
+
+        MvcResult result = mockMvc.perform(post("/product/changeCategories")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("employee@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+ Constants.INVALID_DATA+"\"}", response);
+    }
+    @Test
+    void changeCategoriesBadFormat2() throws Exception {
+        Map<String,String> requestMap= new HashMap<>();
+        requestMap.put("newCategory","newCategory");
+
+        MvcResult result = mockMvc.perform(post("/product/changeCategories")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("employee@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+ Constants.INVALID_DATA+"\"}", response);
+    }
+    @Test
+    void changeCategoriesBadFormat3() throws Exception {
+        Map<String,String> requestMap= new HashMap<>();
+        requestMap.put("productList","[{\"id\":\"-15\"},{\"id\":\"0\"}]");
+        requestMap.put("newCategory","newCategory");
+
+        MvcResult result = mockMvc.perform(post("/product/changeCategories")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("employee@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isNotFound())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+ Constants.PRODUCT_DONT_EXIST+"\"}", response);
+    }
+    @Test
+    void changeCategoriesBadAuth() throws Exception {
+        Map<String,String> requestMap= new HashMap<>();
+        requestMap.put("productList","[{\"id\":\"-15\"},{\"id\":\"-14\"}]");
+        requestMap.put("newCategory","newCategory");
+
+        MvcResult result = mockMvc.perform(post("/product/changeCategories")
+                .header("Authorization", "Bearer "
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestMapToJson(requestMap)))
+                .andExpect(status().isUnauthorized())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("{\"message\":\""+ Constants.UNAUTHORIZED+"\"}", response);
+    }
     //Fix those tests
     @Test
     void addProductWithoutAuth() throws Exception{
@@ -764,5 +848,15 @@ class TestWithoutJwtUtil {
                 "{\"id\":-6,\"title\":\"test3\",\"price\":6.0,\"stock\":10}," +
                 "{\"id\":-5,\"title\":\"test3\",\"price\":5.0,\"stock\":10}]", response);
     }
+    @Test
+    void getCategories() throws Exception{
+        MvcResult result = mockMvc.perform(get("/product/getCategories"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[\"test2\",\"category\",\"test1\"]", response);
+    }
+
 
 }

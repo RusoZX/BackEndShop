@@ -290,6 +290,18 @@ class ProductDaoTest {
 
         assertEquals(expected, actualResponse);
     }
+    @Test
+    void findAllCategories(){
+        List<String> expected = new ArrayList<>();
+        expected.add("test2");
+        expected.add("category");
+        expected.add("test1");
+
+        List<String> actualResponse = underTest.findAllCategories();
+
+        assertEquals(expected, actualResponse);
+
+    }
 
     private Product giveTestProduct() {
         Product product = new Product();

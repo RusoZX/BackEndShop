@@ -22,4 +22,8 @@ public interface ProductRest {
     ResponseEntity<List<ProductWrapper>> getProducts(@PathVariable String method,
                                                      @RequestParam(value = "limit") String limit,
                                                      @RequestParam(value = "search", required = false) String search);
+    @GetMapping(path="/getCategories")
+    ResponseEntity<List<String>> getCategories();
+    @PostMapping(path="/changeCategories")
+    ResponseEntity<String> changeCategories(@RequestBody Map<String, String> requestMap);
 }

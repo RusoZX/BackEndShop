@@ -69,4 +69,24 @@ public class ProductRestImpl implements ProductRest {
         }
         return new ResponseEntity<List<ProductWrapper>>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @Override
+    public ResponseEntity<List<String>> getCategories() {
+        try{
+            return productService.getCategories();
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return new ResponseEntity<List<String>>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> changeCategories(Map<String, String> requestMap) {
+        try{
+            return productService.changeCategories(requestMap);
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

@@ -44,4 +44,7 @@ public interface ProductDao extends JpaRepository<Product, Long> {
     @Query("select new com.daniilzverev.shopserver.wrapper.ProductWrapper(p.id, p.title, p.price, p.stock)" +
             " from Product p order by p.totalSold desc")
     List<ProductWrapper> findAllByBestSellers(Pageable pageable);
+
+    @Query("select distinct p.category from Product p")
+    List<String> findAllCategories();
 }

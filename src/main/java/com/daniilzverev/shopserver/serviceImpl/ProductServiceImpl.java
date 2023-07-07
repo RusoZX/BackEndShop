@@ -4,11 +4,15 @@ import com.daniilzverev.shopserver.JWT.JwtFilter;
 import com.daniilzverev.shopserver.constants.Constants;
 import com.daniilzverev.shopserver.dao.ProductDao;
 import com.daniilzverev.shopserver.dao.UserDao;
+import com.daniilzverev.shopserver.entity.Goods;
 import com.daniilzverev.shopserver.entity.Product;
 import com.daniilzverev.shopserver.entity.User;
 import com.daniilzverev.shopserver.service.ProductService;
 import com.daniilzverev.shopserver.utils.Utils;
 import com.daniilzverev.shopserver.wrapper.ProductWrapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -199,6 +203,49 @@ public class ProductServiceImpl implements ProductService {
             return new ResponseEntity<List<ProductWrapper>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @Override
+    public ResponseEntity<List<String>> getCategories() {
+        try{
+            return new ResponseEntity<>(productDao.findAllCategories(), HttpStatus.OK);
+        }catch (Exception ex){
+            log.error(ex.getLocalizedMessage());
+        }
+                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    @Override
+    public ResponseEntity<String> changeCategories(Map<String, String> requestMap) {
+        try {
+            if(checkChangeCategoriesMap(requestMap)) {
+                log.info("User " + jwtFilter.getCurrentUser() + " trying to change products categories:" + requestMap);
+                User user = userDao.findByEmail(jwtFilter.getCurrentUser());
+                if (!Objects.isNull(user) && user.getRole().equals("employee")) {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JsonNode jsonNode = objectMapper.readTree(requestMap.get("productList"));
+                    for (JsonNode element : jsonNode) {
+                        Long id = Long.parseLong(element.get("id").textValue());
+                        Optional<Product> optProduct= productDao.findById(Long.parseLong(element.get("id").textValue()));
+                        if(optProduct.isPresent()){
+                            Product product = optProduct.get();
+                            product.setCategory(requestMap.get("newCategory"));
+                            productDao.save(product);
+                        }else
+                            return Utils.getResponseEntity(Constants.PRODUCT_DONT_EXIST, HttpStatus.NOT_FOUND);
+                    }
+                    return Utils.getResponseEntity(Constants.UPDATED, HttpStatus.OK);
+                } else
+                    return Utils.getResponseEntity(Constants.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+            }else
+                return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+        }catch (NumberFormatException e) {
+            log.error("Bad Number format in product Id "+e.getLocalizedMessage());
+            return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+        }
+        catch (Exception ex){
+            log.error(ex.getLocalizedMessage());
+        }
+        return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
 
     private boolean checkGetProductsRequest(String method, String limit){
@@ -261,5 +308,8 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         return false;
+    }
+    private boolean checkChangeCategoriesMap(Map<String, String> requestMap){
+        return requestMap.containsKey("productList")&&requestMap.containsKey("newCategory");
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
@@ -153,9 +154,9 @@ public class OrderServiceImpl implements OrderService {
                 if(Objects.isNull(mode))
                     return new ResponseEntity<>(orderDao.findAllNone(), HttpStatus.OK);
                 if(mode.equals("week"))
-                    return new ResponseEntity<>(orderDao.findAllNone(), HttpStatus.OK);
+                    return new ResponseEntity<>(orderDao.findAllTimeInterval(giveWeekAgo(), LocalDate.now()), HttpStatus.OK);
                 if(mode.equals("month"))
-                    return new ResponseEntity<>(orderDao.findAllNone(), HttpStatus.OK);
+                    return new ResponseEntity<>(orderDao.findAllTimeInterval(giveMonthAgo(), LocalDate.now()), HttpStatus.OK);
 
                 //If it got here it means that there was a bad format
                 return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
@@ -250,5 +251,13 @@ public class OrderServiceImpl implements OrderService {
             log.error(ex.getLocalizedMessage());
         }
         return null;
+    }
+    private LocalDate giveWeekAgo(){
+        LocalDate now = LocalDate.now();
+        return  now.minusWeeks(1);
+    }
+    private LocalDate giveMonthAgo(){
+        LocalDate now = LocalDate.now();
+        return  now.minusMonths(1);
     }
 }

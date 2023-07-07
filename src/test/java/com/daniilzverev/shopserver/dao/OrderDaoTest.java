@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +35,34 @@ class OrderDaoTest {
         assertEquals(expected, orderDao.findAllByUserId(-1L));
     }
     @Test
-    void findAllByUserIdNone() {
+    void findAllNone() {
         List<OrderForEmployeeWrapper> expected= new ArrayList<>();
-        expected.add( new OrderForEmployeeWrapper(-2L,"example@example.com",true, "paid",10D));
         expected.add( new OrderForEmployeeWrapper(-1L,"example1@example.com",false, "pending",20D));
+        expected.add( new OrderForEmployeeWrapper(-2L,"example@example.com",true, "paid",10D));
 
 
         assertEquals(expected, orderDao.findAllNone());
+    }
+    @Test
+    void findAllWeek() {
+        List<OrderForEmployeeWrapper> expected= new ArrayList<>();
+        expected.add( new OrderForEmployeeWrapper(-1L,"example1@example.com",false, "pending",20D));
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
+
+        assertEquals(expected, orderDao.findAllTimeInterval(LocalDate.parse("2023-07-01",formatter),
+                LocalDate.parse("2023-07-07",formatter)));
+    }
+    @Test
+    void findAllMonth() {
+        List<OrderForEmployeeWrapper> expected= new ArrayList<>();
+        expected.add( new OrderForEmployeeWrapper(-1L,"example1@example.com",false, "pending",20D));
+        expected.add( new OrderForEmployeeWrapper(-2L,"example@example.com",true, "paid",10D));
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
+
+        assertEquals(expected, orderDao.findAllTimeInterval(LocalDate.parse("2023-06-07",formatter),
+                LocalDate.parse("2023-07-07",formatter)));
     }
 
 }

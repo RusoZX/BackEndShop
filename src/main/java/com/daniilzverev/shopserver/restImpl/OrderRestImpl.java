@@ -5,6 +5,7 @@ import com.daniilzverev.shopserver.rest.OrderRest;
 import com.daniilzverev.shopserver.serviceImpl.OrderServiceImpl;
 import com.daniilzverev.shopserver.utils.Utils;
 import com.daniilzverev.shopserver.wrapper.OrderForClientWrapper;
+import com.daniilzverev.shopserver.wrapper.OrderForEmployeeWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,5 +59,15 @@ public class OrderRestImpl implements OrderRest {
             ex.printStackTrace();
         }
         return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<OrderForEmployeeWrapper>> getOrdersForEmployee(String mode) {
+        try{
+            return orderService.getAllOrdersEmployee(mode);
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return new ResponseEntity<List<OrderForEmployeeWrapper>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

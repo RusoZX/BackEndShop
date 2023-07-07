@@ -243,4 +243,55 @@ class OrderRestImplTest {
 
         assertEquals("{\"message\":\""+ Constants.INVALID_DATA+"\"}", response);
     }
+    @Test
+    void getAllOrdersEmployee() throws Exception {
+        MvcResult result = mockMvc.perform(get("/order/getAllOrders")
+                .header("Authorization", "Bearer "
+                        + jwtUtil.generateToken("employee@example.com", "someEncryptedData")))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        assertEquals(
+                "[{\"id\":-2,\"userName\":\"example@example.com\"," +
+                        "\"paymentStatus\":\"true\",\"orderStatus\":\"paid\",\"totalRevenue\":10.0}," +
+                        "{\"id\":-1,\"userName\":\"example1@example.com\"," +
+                        "\"paymentStatus\":\"false\",\"orderStatus\":\"pending\",\"totalRevenue\":20.0}]", response);
+    }
+    @Test
+    void getAllOrdersMonth() throws Exception {
+        MvcResult result = mockMvc.perform(get("/order/getAllOrders?search=month")
+                .header("Authorization", "Bearer "
+                        + jwtUtil.generateToken("employee@example.com", "someEncryptedData")))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        assertEquals("[{\"id\":-1,\"paymentStatus\":\"false\",\"orderStatus\":\"pending\"}]", response);
+    }
+    @Test
+    void getAllOrdersWeek() throws Exception {
+        MvcResult result = mockMvc.perform(get("/order/getAllOrders?search=week")
+                .header("Authorization", "Bearer "
+                        + jwtUtil.generateToken("employee@example.com", "someEncryptedData")))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        assertEquals("[{\"id\":-1,\"paymentStatus\":\"false\",\"orderStatus\":\"pending\"}]", response);
+    }
+    @Test
+    void getAllOrdersBadFormat() throws Exception {
+        MvcResult result = mockMvc.perform(get("/order/getAllOrders?search=badFormat")
+                .header("Authorization", "Bearer "
+                        + jwtUtil.generateToken("employee@example.com", "someEncryptedData")))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        assertEquals("[{\"id\":-1,\"paymentStatus\":\"false\",\"orderStatus\":\"pending\"}]", response);
+    }
+    @Test
+    void getAllOrdersNoAuth() throws Exception {
+        mockMvc.perform(get("/order/getAllOrders")
+                .header("Authorization", "Bearer "
+                        + jwtUtil.generateToken("example1@example.com", "someEncryptedData")))
+                .andExpect(status().isUnauthorized());
+    }
 }

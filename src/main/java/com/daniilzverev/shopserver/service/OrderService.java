@@ -1,6 +1,7 @@
 package com.daniilzverev.shopserver.service;
 
 import com.daniilzverev.shopserver.wrapper.OrderForClientWrapper;
+import com.daniilzverev.shopserver.wrapper.OrderForEmployeeWrapper;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -11,5 +12,5 @@ public interface OrderService {
     ResponseEntity<String> getOrder(String orderId);
     ResponseEntity<List<OrderForClientWrapper>> getAllOrders();
     ResponseEntity<String> updateStatus(Map<String, String> requestMap);
-
+    ResponseEntity<List<OrderForEmployeeWrapper>> getAllOrdersEmployee(String mode);
 }

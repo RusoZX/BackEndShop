@@ -1,11 +1,13 @@
 package com.daniilzverev.shopserver.entity;
 
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,6 +43,11 @@ public class Order implements Serializable {
 
     @Column(name="orderStatus")
     private String orderStatus;
+
+    @CreationTimestamp
+    @Column(name = "createdDate")
+    private LocalDateTime createdDate;
+
 
     public String toJson(){
         return "{\"id\":"+this.id+",\"userId\":\""+this.user.getId()+"\",\"paymentMethod\":\""+this.paymentMethod+

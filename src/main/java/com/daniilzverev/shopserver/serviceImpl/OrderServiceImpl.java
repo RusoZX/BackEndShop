@@ -7,6 +7,7 @@ import com.daniilzverev.shopserver.entity.*;
 import com.daniilzverev.shopserver.service.OrderService;
 import com.daniilzverev.shopserver.utils.Utils;
 import com.daniilzverev.shopserver.wrapper.OrderForClientWrapper;
+import com.daniilzverev.shopserver.wrapper.OrderForEmployeeWrapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -140,6 +141,30 @@ public class OrderServiceImpl implements OrderService {
             log.error(ex.getLocalizedMessage());
         }
         return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+
+    }
+
+    @Override
+    public ResponseEntity<List<OrderForEmployeeWrapper>> getAllOrdersEmployee(String mode) {
+        try{
+            log.info("User " + jwtFilter.getCurrentUser() + " Trying to get orders: ");
+            User user = userDao.findByEmail(jwtFilter.getCurrentUser());
+            if (!Objects.isNull(user)&&user.getRole().equals("employee")){
+                if(Objects.isNull(mode))
+                    return new ResponseEntity<>(orderDao.findAllNone(), HttpStatus.OK);
+                if(mode.equals("week"))
+                    return new ResponseEntity<>(orderDao.findAllNone(), HttpStatus.OK);
+                if(mode.equals("month"))
+                    return new ResponseEntity<>(orderDao.findAllNone(), HttpStatus.OK);
+
+                //If it got here it means that there was a bad format
+                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
+            }else
+                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.UNAUTHORIZED);
+        }catch (Exception ex){
+            log.error(ex.getLocalizedMessage());
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
 

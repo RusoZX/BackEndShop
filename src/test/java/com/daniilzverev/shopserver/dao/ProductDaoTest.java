@@ -270,6 +270,26 @@ class ProductDaoTest {
 
         assertEquals(expected, actualResponse);
     }
+    @Test
+    void findBestSellers10(){
+        List<ProductWrapper> expected = new ArrayList<>();
+
+        expected.add(new ProductWrapper(-12L,"title",12F,10));
+        expected.add(new ProductWrapper(-15L,"title",15F,10));
+        expected.add(new ProductWrapper(-14L,"title",14F,10));
+        expected.add(new ProductWrapper(-11L,"title",11F,10));
+        expected.add(new ProductWrapper(-3L,"test4",3F,10));
+        expected.add(new ProductWrapper(-10L,"test4",10F,10));
+        expected.add(new ProductWrapper(-9L,"test3",9F,10));
+        expected.add(new ProductWrapper(-8L,"test3",8F,10));
+        expected.add(new ProductWrapper(-2L,"test4",2F,10));
+        expected.add(new ProductWrapper(-1L,"test3",1F,10));
+
+
+        List<ProductWrapper> actualResponse = underTest.findAllByBestSellers(PageRequest.of(0, 10));
+
+        assertEquals(expected, actualResponse);
+    }
 
     private Product giveTestProduct() {
         Product product = new Product();

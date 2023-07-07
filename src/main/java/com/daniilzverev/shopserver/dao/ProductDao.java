@@ -41,4 +41,7 @@ public interface ProductDao extends JpaRepository<Product, Long> {
             " from Product p where p.title like %:title%")
     List<ProductWrapper> findAllByTitle(@Param("title") String title,Pageable pageable);
 
+    @Query("select new com.daniilzverev.shopserver.wrapper.ProductWrapper(p.id, p.title, p.price, p.stock)" +
+            " from Product p order by p.totalSold desc")
+    List<ProductWrapper> findAllByBestSellers(Pageable pageable);
 }

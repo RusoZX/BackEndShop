@@ -723,5 +723,46 @@ class TestWithoutJwtUtil {
                 "{\"id\":-4,\"title\":\"test4\",\"price\":4.0,\"stock\":10}," +
                 "{\"id\":-2,\"title\":\"test4\",\"price\":10.0,\"stock\":10}]", response);
     }
+    @Test
+    void getProductsByBestSellersLimit10() throws Exception{
+        MvcResult result = mockMvc.perform(get("/product/getByBestSellers?limit=10"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[{\"id\":-12,\"title\":\"title\",\"price\":12.0,\"stock\":10}," +
+                "{\"id\":-15,\"title\":\"title\",\"price\":15.0,\"stock\":10}," +
+                "{\"id\":-14,\"title\":\"title\",\"price\":14.0,\"stock\":10}," +
+                "{\"id\":-11,\"title\":\"title\",\"price\":11.0,\"stock\":10}," +
+                "{\"id\":-3,\"title\":\"test4\",\"price\":3.0,\"stock\":10}," +
+                "{\"id\":-10,\"title\":\"test4\",\"price\":10.0,\"stock\":10}," +
+                "{\"id\":-9,\"title\":\"test3\",\"price\":9.0,\"stock\":10}," +
+                "{\"id\":-8,\"title\":\"test3\",\"price\":8.0,\"stock\":10}," +
+                "{\"id\":-2,\"title\":\"test4\",\"price\":2.0,\"stock\":10}," +
+                "{\"id\":-1,\"title\":\"test3\",\"price\":1.0,\"stock\":10}]", response);
+    }
+    @Test
+    void getProductsByBestSellersLimit15() throws Exception{
+        MvcResult result = mockMvc.perform(get("/product/getByBestSellers?limit=15"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = result.getResponse().getContentAsString();
+
+        assertEquals("[{\"id\":-12,\"title\":\"title\",\"price\":12.0,\"stock\":10}," +
+                "{\"id\":-15,\"title\":\"title\",\"price\":15.0,\"stock\":10}," +
+                "{\"id\":-14,\"title\":\"title\",\"price\":14.0,\"stock\":10}," +
+                "{\"id\":-11,\"title\":\"title\",\"price\":11.0,\"stock\":10}," +
+                "{\"id\":-3,\"title\":\"test4\",\"price\":3.0,\"stock\":10}," +
+                "{\"id\":-10,\"title\":\"test4\",\"price\":10.0,\"stock\":10}," +
+                "{\"id\":-9,\"title\":\"test3\",\"price\":9.0,\"stock\":10}," +
+                "{\"id\":-8,\"title\":\"test3\",\"price\":8.0,\"stock\":10}," +
+                "{\"id\":-2,\"title\":\"test4\",\"price\":2.0,\"stock\":10}," +
+                "{\"id\":-1,\"title\":\"test3\",\"price\":1.0,\"stock\":10}," +
+                "{\"id\":-4,\"title\":\"test4\",\"price\":4.0,\"stock\":10}," +
+                "{\"id\":-13,\"title\":\"title\",\"price\":13.0,\"stock\":10}," +
+                "{\"id\":-7,\"title\":\"test3\",\"price\":7.0,\"stock\":10}," +
+                "{\"id\":-6,\"title\":\"test3\",\"price\":6.0,\"stock\":10}," +
+                "{\"id\":-5,\"title\":\"test3\",\"price\":5.0,\"stock\":10}]", response);
+    }
 
 }

@@ -184,6 +184,10 @@ public class ProductServiceImpl implements ProductService {
                                     productDao.findAllByColor(search, requestLimit),
                                     HttpStatus.OK);
                         break;
+                    case "BestSellers":
+                        return new ResponseEntity<List<ProductWrapper>>(
+                                productDao.findAllByBestSellers( requestLimit),
+                                HttpStatus.OK);
                 }
 
             }

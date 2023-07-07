@@ -46,4 +46,7 @@ public class Product implements Serializable {
     @Column(name="stock")
     private Integer stock;
 
+    @Column(name="totalSold")
+    private Integer totalSold;
+
 }

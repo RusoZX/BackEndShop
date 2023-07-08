@@ -10,6 +10,7 @@ import com.daniilzverev.shopserver.entity.ShoppingCart;
 import com.daniilzverev.shopserver.entity.User;
 import com.daniilzverev.shopserver.service.ShoppingCartService;
 import com.daniilzverev.shopserver.utils.Utils;
+import com.daniilzverev.shopserver.wrapper.CartWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -107,19 +108,19 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public ResponseEntity<List<Product>> getCart() {
+    public ResponseEntity<List<CartWrapper>> getCart() {
         try{
             log.info("User "+jwtFilter.getCurrentUser()+" Trying to clean shopping cart");
             User user = userDao.findByEmail(jwtFilter.getCurrentUser());
             if(!Objects.isNull(user)){
-                List<Product> result = productDao.findAllInShoppingCart(user.getId());
-                return new ResponseEntity<List<Product>>(result,HttpStatus.OK);
+                List<CartWrapper> result = productDao.findAllInShoppingCart(user.getId());
+                return new ResponseEntity<List<CartWrapper>>(result,HttpStatus.OK);
             }
         }catch (Exception ex){
             log.error(ex.getLocalizedMessage());
         }
         //It will only get to here through an error
-        return new ResponseEntity<List<Product>>(new ArrayList<Product>(),HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override

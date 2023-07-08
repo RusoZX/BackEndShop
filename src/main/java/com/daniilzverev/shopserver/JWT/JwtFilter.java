@@ -35,7 +35,7 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         //Here we check if the urls are the ones that dont need authentication
-        if(httpServletRequest.getServletPath().matches("/user/login|/user/signup")){
+        if(httpServletRequest.getServletPath().matches("/user/login|/user/signup|^/product/\\d+$")){
             filterChain.doFilter(httpServletRequest, httpServletResponse);
         } else{
 

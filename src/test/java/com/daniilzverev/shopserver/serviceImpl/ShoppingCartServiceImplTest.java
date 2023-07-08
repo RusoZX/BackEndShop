@@ -8,6 +8,7 @@ import com.daniilzverev.shopserver.dao.UserDao;
 import com.daniilzverev.shopserver.entity.Product;
 import com.daniilzverev.shopserver.entity.ShoppingCart;
 import com.daniilzverev.shopserver.entity.User;
+import com.daniilzverev.shopserver.wrapper.CartWrapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -22,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
@@ -39,7 +41,7 @@ class ShoppingCartServiceImplTest {
     private JwtFilter jwtFilter;
 
     @InjectMocks
-    ShoppingCartServiceImpl shoppingCartService;
+    ShoppingCartServiceImpl underTest;
 
     @BeforeEach
     public void setUp() {
@@ -58,10 +60,11 @@ class ShoppingCartServiceImplTest {
 
         when(productDao.findById(-1L)).thenReturn(Optional.of(giveTestProduct()));
 
-        ResponseEntity<String> response = shoppingCartService.addToCart(requestMap);
+        ResponseEntity<String> response = underTest.addToCart(requestMap);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\"" + Constants.ITEM_ADDED + "\"}", response.getBody());
+        verify(underTest.shoppingCartDao).save(any(ShoppingCart.class));
     }
     @Test
     void addToCartWithBadData() {
@@ -69,7 +72,7 @@ class ShoppingCartServiceImplTest {
 
         when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
 
-        ResponseEntity<String> response = shoppingCartService.addToCart(requestMap);
+        ResponseEntity<String> response = underTest.addToCart(requestMap);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\"" + Constants.INVALID_DATA + "\"}", response.getBody());
@@ -86,7 +89,7 @@ class ShoppingCartServiceImplTest {
 
         when(productDao.findById(0L)).thenReturn(Optional.empty());
 
-        ResponseEntity<String> response = shoppingCartService.addToCart(requestMap);
+        ResponseEntity<String> response = underTest.addToCart(requestMap);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\"" + Constants.PRODUCT_DONT_EXIST + "\"}", response.getBody());
@@ -99,7 +102,7 @@ class ShoppingCartServiceImplTest {
 
         when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
 
-        ResponseEntity<String> response = shoppingCartService.addToCart(requestMap);
+        ResponseEntity<String> response = underTest.addToCart(requestMap);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\"" + Constants.INVALID_DATA + "\"}", response.getBody());
@@ -117,7 +120,7 @@ class ShoppingCartServiceImplTest {
         when(productDao.findById(-1L)).thenReturn(Optional.of(giveTestProduct()));
 
         when(shoppingCartDao.findByProductAndUser(-1L,-1L)).thenReturn(giveTestShoppingCart());
-        ResponseEntity<String> response = shoppingCartService.removeOfCart(requestMap);
+        ResponseEntity<String> response = underTest.removeOfCart(requestMap);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\"" + Constants.REMOVED + "\"}", response.getBody());
@@ -135,7 +138,7 @@ class ShoppingCartServiceImplTest {
         when(productDao.findById(-1L)).thenReturn(Optional.of(giveTestProduct()));
 
         when(shoppingCartDao.findByProductAndUser(-1L,-1L)).thenReturn(giveTestShoppingCart());
-        ResponseEntity<String> response = shoppingCartService.removeOfCart(requestMap);
+        ResponseEntity<String> response = underTest.removeOfCart(requestMap);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\"" + Constants.INVALID_DATA + "\"}", response.getBody());
@@ -152,7 +155,7 @@ class ShoppingCartServiceImplTest {
         when(productDao.findById(-1L)).thenReturn(Optional.of(giveTestProduct()));
 
         when(shoppingCartDao.findByProductAndUser(-1L,-1L)).thenReturn(giveTestShoppingCart());
-        ResponseEntity<String> response = shoppingCartService.removeOfCart(requestMap);
+        ResponseEntity<String> response = underTest.removeOfCart(requestMap);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\"" + Constants.INVALID_DATA + "\"}", response.getBody());
@@ -169,7 +172,7 @@ class ShoppingCartServiceImplTest {
         when(productDao.findById(-0L)).thenReturn(Optional.empty());
 
         when(shoppingCartDao.findByProductAndUser(-1L,-1L)).thenReturn(giveTestShoppingCart());
-        ResponseEntity<String> response = shoppingCartService.removeOfCart(requestMap);
+        ResponseEntity<String> response = underTest.removeOfCart(requestMap);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\"" + Constants.PRODUCT_DONT_EXIST + "\"}", response.getBody());
@@ -180,7 +183,7 @@ class ShoppingCartServiceImplTest {
 
         when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
-        ResponseEntity<String> response = shoppingCartService.removeAllOfCart();
+        ResponseEntity<String> response = underTest.removeAllOfCart();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\"" + Constants.REMOVED + "\"}", response.getBody());
@@ -194,35 +197,11 @@ class ShoppingCartServiceImplTest {
         user.setId(-2L);
         when(userDao.findByEmail("example2@example.com")).thenReturn(user);
 
-        ResponseEntity<List<Product>> response = shoppingCartService.getCart();
+        ResponseEntity<List<CartWrapper>> response = underTest.getCart();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         assertTrue( response.getBody().isEmpty());
-    }
-    //Fix This Test
-    @Test
-    void getCart() {
-        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
-
-        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
-
-        List<Product> expected = new ArrayList<>();
-        expected.add(giveTestProduct());
-
-        Product product = giveTestProduct();
-        product.setId(-2L);
-        product.setTitle("test4");
-        product.setCategory("test2");
-        product.setBrand("test1");
-        product.setColor("test3");
-        expected.add(product);
-
-        ResponseEntity<List<Product>> response = shoppingCartService.getCart();
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        assertEquals(expected, response.getBody());
     }
     @Test
     void editCartWithBadProduct() {
@@ -237,7 +216,7 @@ class ShoppingCartServiceImplTest {
         when(productDao.findById(-0L)).thenReturn(Optional.empty());
 
         when(shoppingCartDao.findByProductAndUser(-1L,-1L)).thenReturn(giveTestShoppingCart());
-        ResponseEntity<String> response = shoppingCartService.editCart(requestMap);
+        ResponseEntity<String> response = underTest.editCart(requestMap);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\"" + Constants.PRODUCT_DONT_EXIST + "\"}", response.getBody());
@@ -253,7 +232,7 @@ class ShoppingCartServiceImplTest {
 
         when(productDao.findById(0L)).thenReturn(Optional.empty());
 
-        ResponseEntity<String> response = shoppingCartService.editCart(requestMap);
+        ResponseEntity<String> response = underTest.editCart(requestMap);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\"" + Constants.INVALID_DATA + "\"}", response.getBody());
@@ -274,7 +253,7 @@ class ShoppingCartServiceImplTest {
         when(productDao.findById(-3L)).thenReturn(Optional.of(product));
 
         when(shoppingCartDao.findByProductAndUser(-3L,-1L)).thenReturn(null);
-        ResponseEntity<String> response = shoppingCartService.editCart(requestMap);
+        ResponseEntity<String> response = underTest.editCart(requestMap);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\"" + Constants.ITEM_DONT_EXIST + "\"}", response.getBody());
@@ -292,10 +271,13 @@ class ShoppingCartServiceImplTest {
         when(productDao.findById(-1L)).thenReturn(Optional.of(giveTestProduct()));
 
         when(shoppingCartDao.findByProductAndUser(-1L,-1L)).thenReturn(giveTestShoppingCart());
-        ResponseEntity<String> response = shoppingCartService.editCart(requestMap);
+        ResponseEntity<String> response = underTest.editCart(requestMap);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\"" + Constants.UPDATED + "\"}", response.getBody());
+        ShoppingCart item = giveTestShoppingCart();
+        item.setQuantity(5);
+        verify(underTest.shoppingCartDao).save(item);
     }
 
 

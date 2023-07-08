@@ -49,6 +49,7 @@ public class ProductServiceImpl implements ProductService {
                     product.setWeight(Float.parseFloat(requestMap.get("weight")));
                     product.setVolume(Float.parseFloat(requestMap.get("volume")));
                     product.setStock(Integer.parseInt(requestMap.get("stock")));
+                    product.setTotalSold(0);
                     productDao.save(product);
                     return Utils.getResponseEntity(Constants.PRODUCT_ADDED, HttpStatus.OK);
                 }else

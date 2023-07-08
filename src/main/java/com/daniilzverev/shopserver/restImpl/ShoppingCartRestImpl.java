@@ -6,6 +6,7 @@ import com.daniilzverev.shopserver.entity.Product;
 import com.daniilzverev.shopserver.rest.ShoppingCartRest;
 import com.daniilzverev.shopserver.service.ShoppingCartService;
 import com.daniilzverev.shopserver.utils.Utils;
+import com.daniilzverev.shopserver.wrapper.CartWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,13 +52,13 @@ public class ShoppingCartRestImpl implements ShoppingCartRest {
     }
 
     @Override
-    public ResponseEntity<List<Product>> getAll() {
+    public ResponseEntity<List<CartWrapper>> getAll() {
         try{
             return shoppingCartService.getCart();
         }catch(Exception ex){
             ex.printStackTrace();
         }
-        return new ResponseEntity<List<Product>>(new ArrayList<Product>(),HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<List<CartWrapper>>(new ArrayList<CartWrapper>(),HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override

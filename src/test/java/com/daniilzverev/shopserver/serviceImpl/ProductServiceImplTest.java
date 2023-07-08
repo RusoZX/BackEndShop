@@ -28,6 +28,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.any;
 
 @SpringBootTest
 
@@ -74,6 +75,8 @@ class ProductServiceImplTest {
         ResponseEntity<String> result = underTest.addProduct(requestMap);
 
         assertEquals(Utils.getResponseEntity(Constants.PRODUCT_ADDED, HttpStatus.OK), result);
+
+        verify(underTest.productDao).save(any(Product.class));
 
     }
     @Test
@@ -149,6 +152,7 @@ class ProductServiceImplTest {
         when(jwtFilter.getCurrentUser()).thenReturn("employee@example.com");
 
         when(userDao.findByEmail("employee@example.com")).thenReturn(giveTestUser());
+        when(productDao.findById(-3L)).thenReturn(Optional.of(giveTestProduct()));
 
         ResponseEntity<String> result = underTest.editProduct(requestMap);
 
@@ -216,6 +220,7 @@ class ProductServiceImplTest {
 
         when(userDao.findByEmail("employee@example.com")).thenReturn(giveTestUser());
 
+        when(productDao.findById(-3L)).thenReturn(Optional.of(giveTestProduct()));
         ResponseEntity<String> result = underTest.removeProduct(requestMap);
 
         assertEquals(Utils.getResponseEntity(Constants.REMOVED, HttpStatus.OK), result);

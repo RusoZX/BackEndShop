@@ -58,7 +58,7 @@ class UserServiceImplTest {
     private JwtFilter jwtFilter;
 
     @InjectMocks
-    private UserServiceImpl userService;
+    private UserServiceImpl underTest;
 
     @BeforeEach
     public void setUp() {
@@ -77,10 +77,11 @@ class UserServiceImplTest {
         when(userDao.findByEmail(anyString())).thenReturn(null);
         when(userDao.save(any(User.class))).thenReturn(new User());
 
-        ResponseEntity<String> response = userService.signUp(requestMap);
+        ResponseEntity<String> response = underTest.signUp(requestMap);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.REGISTERED+"\"}" , response.getBody());
+        verify(underTest.userDao).save(any(User.class));
     }
 
 
@@ -95,7 +96,7 @@ class UserServiceImplTest {
 
         when(userDao.findByEmail(anyString())).thenReturn(new User());
 
-        ResponseEntity<String> response = userService.signUp(requestMap);
+        ResponseEntity<String> response = underTest.signUp(requestMap);
 
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -112,7 +113,7 @@ class UserServiceImplTest {
         requestMap.put("email","example22@example.com");
         requestMap.put("pwd","someEncryptedData");
 
-        ResponseEntity<String> response = userService.signUp(requestMap);
+        ResponseEntity<String> response = underTest.signUp(requestMap);
 
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -138,7 +139,7 @@ class UserServiceImplTest {
 
         when(jwtUtil.generateToken(email, pwd)).thenReturn(any());
 
-        ResponseEntity<String> response = userService.login(requestMap);
+        ResponseEntity<String> response = underTest.login(requestMap);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
@@ -162,7 +163,7 @@ class UserServiceImplTest {
 
         when(jwtUtil.generateToken(email, pwd)).thenReturn(any());
 
-        ResponseEntity<String> response = userService.login(requestMap);
+        ResponseEntity<String> response = underTest.login(requestMap);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.BAD_CREDENTIALS+"\"}" , response.getBody());
@@ -171,7 +172,7 @@ class UserServiceImplTest {
     public void loginBadData() {
         Map<String, String> requestMap = new HashMap<>();
 
-        ResponseEntity<String> response = userService.login(requestMap);
+        ResponseEntity<String> response = underTest.login(requestMap);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}" , response.getBody());
@@ -199,7 +200,7 @@ class UserServiceImplTest {
         expected.setBirthDate(user.getBirthDate());
         expected.setSurname(user.getSurname());
 
-        ResponseEntity<User> response = userService.getUserData();
+        ResponseEntity<User> response = underTest.getUserData();
 
         assertEquals(expected.getEmail(), response.getBody().getEmail());
         assertEquals(expected.getName(), response.getBody().getName());
@@ -215,7 +216,7 @@ class UserServiceImplTest {
 
         when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
-        ResponseEntity<String> response= userService.updateProfile(requestMap);
+        ResponseEntity<String> response= underTest.updateProfile(requestMap);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
 
@@ -233,7 +234,7 @@ class UserServiceImplTest {
 
         when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
-        ResponseEntity<String> response= userService.updateProfile(requestMap);
+        ResponseEntity<String> response= underTest.updateProfile(requestMap);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
 
@@ -254,7 +255,7 @@ class UserServiceImplTest {
 
         when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
-        ResponseEntity<String> response= userService.updateProfile(requestMap);
+        ResponseEntity<String> response= underTest.updateProfile(requestMap);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
 
@@ -277,7 +278,7 @@ class UserServiceImplTest {
 
         when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
-        ResponseEntity<String> response= userService.updateProfile(requestMap);
+        ResponseEntity<String> response= underTest.updateProfile(requestMap);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
 
@@ -297,7 +298,7 @@ class UserServiceImplTest {
 
         when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
-        ResponseEntity<String> response= userService.updateProfile(requestMap);
+        ResponseEntity<String> response= underTest.updateProfile(requestMap);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}" , response.getBody() );
     }
@@ -310,7 +311,7 @@ class UserServiceImplTest {
         requestMap.put("birthday","badformat");
         when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
-        ResponseEntity<String> response= userService.updateProfile(requestMap);
+        ResponseEntity<String> response= underTest.updateProfile(requestMap);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}" , response.getBody() );
     }
@@ -324,7 +325,7 @@ class UserServiceImplTest {
 
         when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
-        ResponseEntity<String> response= userService.changePwd(requestMap);
+        ResponseEntity<String> response= underTest.changePwd(requestMap);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}" , response.getBody() );
     }
@@ -339,7 +340,7 @@ class UserServiceImplTest {
 
         when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
-        ResponseEntity<String> response= userService.changePwd(requestMap);
+        ResponseEntity<String> response= underTest.changePwd(requestMap);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.INVALID_PWD+"\"}" , response.getBody() );
     }
@@ -354,7 +355,7 @@ class UserServiceImplTest {
 
         when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
-        ResponseEntity<String> response= userService.changePwd(requestMap);
+        ResponseEntity<String> response= underTest.changePwd(requestMap);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
 
@@ -374,7 +375,7 @@ class UserServiceImplTest {
 
         when(userDao.findByEmail("employee@example.com")).thenReturn(user);
 
-        ResponseEntity<List<User>> response= userService.getUsers();
+        ResponseEntity<List<User>> response= underTest.getUsers();
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
     }
@@ -384,7 +385,7 @@ class UserServiceImplTest {
 
         when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
-        ResponseEntity<List<User>> response= userService.getUsers();
+        ResponseEntity<List<User>> response= underTest.getUsers();
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
     }
     @Test
@@ -401,10 +402,10 @@ class UserServiceImplTest {
 
         when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
-        ResponseEntity<String> response= userService.addAddress(requestMap);
+        ResponseEntity<String> response= underTest.addAddress(requestMap);
         assertEquals(Utils.getResponseEntity(Constants.ADDRESS_ADDED,HttpStatus.OK), response);
 
-        verify(userService.addressDao).save(any());
+        verify(underTest.addressDao).save(any());
 
     }
     @Test
@@ -420,10 +421,10 @@ class UserServiceImplTest {
         address.setCountry("idk1");
         when(addressDao.findById(-1L)).thenReturn(Optional.of(giveTestAddress()));
 
-        ResponseEntity<String> response= userService.editAddress(requestMap);
+        ResponseEntity<String> response= underTest.editAddress(requestMap);
         assertEquals(Utils.getResponseEntity(Constants.UPDATED,HttpStatus.OK), response);
 
-        verify(userService.addressDao).save(address);
+        verify(underTest.addressDao).save(address);
 
     }
     @Test
@@ -440,10 +441,10 @@ class UserServiceImplTest {
 
         when(addressDao.findById(-1L)).thenReturn(Optional.of(giveTestAddress()));
 
-        ResponseEntity<String> response= userService.editAddress(requestMap);
+        ResponseEntity<String> response= underTest.editAddress(requestMap);
         assertEquals(Utils.getResponseEntity(Constants.UPDATED,HttpStatus.OK), response);
 
-        verify(userService.addressDao).save(address);
+        verify(underTest.addressDao).save(address);
 
     }
     @Test
@@ -460,10 +461,10 @@ class UserServiceImplTest {
         Address address = giveTestAddress();
         address.setPostalCode("idk1");
 
-        ResponseEntity<String> response= userService.editAddress(requestMap);
+        ResponseEntity<String> response= underTest.editAddress(requestMap);
         assertEquals(Utils.getResponseEntity(Constants.UPDATED,HttpStatus.OK), response);
 
-        verify(userService.addressDao).save(address);
+        verify(underTest.addressDao).save(address);
 
     }
     @Test
@@ -480,10 +481,10 @@ class UserServiceImplTest {
 
         when(addressDao.findById(-1L)).thenReturn(Optional.of(giveTestAddress()));
 
-        ResponseEntity<String> response= userService.editAddress(requestMap);
+        ResponseEntity<String> response= underTest.editAddress(requestMap);
         assertEquals(Utils.getResponseEntity(Constants.UPDATED,HttpStatus.OK), response);
 
-        verify(userService.addressDao).save(address);
+        verify(underTest.addressDao).save(address);
 
     }
     @Test
@@ -500,10 +501,10 @@ class UserServiceImplTest {
 
         when(addressDao.findById(-1L)).thenReturn(Optional.of(giveTestAddress()));
 
-        ResponseEntity<String> response= userService.editAddress(requestMap);
+        ResponseEntity<String> response= underTest.editAddress(requestMap);
         assertEquals(Utils.getResponseEntity(Constants.UPDATED,HttpStatus.OK), response);
 
-        verify(userService.addressDao).save(address);
+        verify(underTest.addressDao).save(address);
 
     }
     @Test
@@ -520,10 +521,10 @@ class UserServiceImplTest {
 
         when(addressDao.findById(-1L)).thenReturn(Optional.of(giveTestAddress()));
 
-        ResponseEntity<String> response= userService.editAddress(requestMap);
+        ResponseEntity<String> response= underTest.editAddress(requestMap);
         assertEquals(Utils.getResponseEntity(Constants.UPDATED,HttpStatus.OK), response);
 
-        verify(userService.addressDao).save(address);
+        verify(underTest.addressDao).save(address);
     }
     @Test
     public void deleteAddress(){
@@ -536,11 +537,11 @@ class UserServiceImplTest {
 
         when(addressDao.findById(-1L)).thenReturn(Optional.of(giveTestAddress()));
 
-        ResponseEntity<String> response= userService.removeAddress(requestMap);
+        ResponseEntity<String> response= underTest.removeAddress(requestMap);
 
         assertEquals(Utils.getResponseEntity(Constants.REMOVED,HttpStatus.OK), response);
 
-        verify(userService.addressDao).delete(giveTestAddress());
+        verify(underTest.addressDao).delete(giveTestAddress());
     }
     private User giveTestUser(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);

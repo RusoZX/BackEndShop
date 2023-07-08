@@ -11,13 +11,12 @@ import java.util.List;
 
 public interface ShoppingCartDao extends JpaRepository<ShoppingCart, Long> {
 
-    @Query("select i from ShoppingCart as i where i.user.id = :userId and i.product.id = :productId")
+    @Query("select i from ShoppingCart i where i.user.id = :userId and i.product.id = :productId")
     ShoppingCart findByProductAndUser(@Param("productId") Long productId, @Param("userId") Long userId);
 
     @Transactional
     @Modifying
     @Query("DELETE FROM ShoppingCart i WHERE i.user.id = :userId")
     void deleteAllByUserId(@Param("userId") Long userId);
-
     List<ShoppingCart> findAllByUserId(@Param("userId") Long userId);
 }

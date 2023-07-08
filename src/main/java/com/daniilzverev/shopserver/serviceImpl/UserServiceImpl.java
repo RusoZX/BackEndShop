@@ -369,8 +369,20 @@ public class UserServiceImpl implements UserService {
     }
 
     private boolean checkUpdateMap(Map<String,String> requestMap){
-        return requestMap.containsKey("name")||requestMap.containsKey("surname")
-                ||requestMap.containsKey("birthday");
+
+        if(requestMap.containsKey("name")||requestMap.containsKey("surname")
+                ||requestMap.containsKey("birthday")){
+            if(requestMap.containsKey("birthday"))
+                try{
+                    LocalDate.parse(requestMap.get("birthdate"), formatter);
+                }catch (Exception e){
+                    log.error("Bad date format"+e.getLocalizedMessage());
+                    return false;
+                }
+            return true;
+        }
+
+        return false;
     }
 
     private boolean checkLoginMap(Map<String,String> requestMap){
@@ -383,12 +395,16 @@ public class UserServiceImpl implements UserService {
                 && requestMap.containsKey("pwd")){
             try {
                 LocalDate.parse(requestMap.get("birthdate"), formatter);
-                log.error("Data format invalid");
+                if(requestMap.get("name").isEmpty() || requestMap.get("surname").isEmpty() ||
+                        requestMap.get("birthdate").isEmpty() || requestMap.get("email").isEmpty() ||
+                         requestMap.get("pwd").isEmpty())
+                    return false;
                 return true;
             } catch (Exception e) {
-                return false;
+                log.error("Bad date format"+e.getLocalizedMessage());
             }
-        }else return false;
+        }
+        return false;
     }
 
     private User getUserFromMap(Map<String, String> map){

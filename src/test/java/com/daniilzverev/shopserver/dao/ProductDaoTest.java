@@ -1,6 +1,7 @@
 package com.daniilzverev.shopserver.dao;
 
 import com.daniilzverev.shopserver.entity.Product;
+import com.daniilzverev.shopserver.wrapper.CartWrapper;
 import com.daniilzverev.shopserver.wrapper.ProductWrapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,26 +24,31 @@ class ProductDaoTest {
 
     @Test
     void findAllInShoppingCart() {
-        List<Product> expected = new ArrayList<>();
+        List<CartWrapper> expected = new ArrayList<>();
 
-        Product product = giveTestProduct();
-        product.setId(-2L);
-        product.setTitle("test4");
-        product.setCategory("test2");
-        product.setBrand("test1");
-        product.setColor("test3");
+        CartWrapper item = new CartWrapper();
+        item.setId(-2L);
+        item.setTitle("test4");
+        item.setPrice(2F);
+        item.setQuantity(4);
 
-        expected.add(product);
+        expected.add(item);
 
-        expected.add(giveTestProduct());
+        item = new CartWrapper();
+        item.setId(-1L);
+        item.setTitle("test3");
+        item.setPrice(1F);
+        item.setQuantity(3);
 
-        List<Product> actualResponse = underTest.findAllInShoppingCart(-1L);
+        expected.add(item);
+
+        List<CartWrapper> actualResponse = underTest.findAllInShoppingCart(-1L);
 
         assertEquals(expected, actualResponse);
     }
     @Test
     void findAllInShoppingCartEmpty() {
-        List<Product> actualResponse = underTest.findAllInShoppingCart(-1L);
+        List<CartWrapper> actualResponse = underTest.findAllInShoppingCart(-2L);
 
         assertTrue(actualResponse.isEmpty());
     }

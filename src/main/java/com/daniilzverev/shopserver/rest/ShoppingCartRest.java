@@ -2,6 +2,7 @@ package com.daniilzverev.shopserver.rest;
 
 
 import com.daniilzverev.shopserver.entity.Product;
+import com.daniilzverev.shopserver.wrapper.CartWrapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +18,7 @@ public interface ShoppingCartRest {
     @DeleteMapping("/removeAll")
     ResponseEntity<String> removeAllOfCart();
     @GetMapping("/get")
-    ResponseEntity<List<Product>> getAll();
+    ResponseEntity<List<CartWrapper>> getAll();
     @PostMapping("/edit")
     ResponseEntity<String> editCart(@RequestBody Map<String, String> requestMap);
 }

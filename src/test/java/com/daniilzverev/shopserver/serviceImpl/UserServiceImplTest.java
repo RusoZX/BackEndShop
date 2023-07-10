@@ -222,7 +222,7 @@ class UserServiceImplTest {
 
         //Validation to see if it was actually updated
         User user = giveTestUser();
-        user.setSurname("idk");
+        user.setName("idk");
         verify(userDao).save(user);
     }
     @Test
@@ -437,7 +437,7 @@ class UserServiceImplTest {
         when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
         Address address = giveTestAddress();
-        address.setCountry("idk1");
+        address.setCity("idk1");
 
         when(addressDao.findById(-1L)).thenReturn(Optional.of(giveTestAddress()));
 

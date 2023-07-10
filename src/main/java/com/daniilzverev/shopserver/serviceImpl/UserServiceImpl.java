@@ -374,7 +374,7 @@ public class UserServiceImpl implements UserService {
                 ||requestMap.containsKey("birthday")){
             if(requestMap.containsKey("birthday"))
                 try{
-                    LocalDate.parse(requestMap.get("birthdate"), formatter);
+                    LocalDate.parse(requestMap.get("birthday"), formatter);
                 }catch (Exception e){
                     log.error("Bad date format"+e.getLocalizedMessage());
                     return false;

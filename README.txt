@@ -2,12 +2,15 @@ This Server uses MySQL, to change it configuration go to /src/main/resources/app
 There you can change the url for the MySQL Server, username and password.
 There you can also change the server port, I use the 8081.
 
-In the same folder as this file will be a sql file to create the data base named createDB.sql
+The database needs to be created manually and spring boot will create the tables structure.
+
+There is a sql file to insert some sample data to test via postman.
 
 To start the backend server run the main method on
 /src/main/java/com.daniilzverev.shopserver/ShopserverApplication
 
-To test the server via Postman put the Authorization to NoAuth in /user/login and /user/signup
+To test the server via Postman put the Authorization to NoAuth in /user/login , /user/signup, /product/get{prodoductId},
+/product/getBy{method}, /product/getAllCategories
 and in Body use raw JSON like this:
 {
     "name":"test",

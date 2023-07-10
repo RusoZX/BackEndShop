@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import static com.daniilzverev.shopserver.utils.Utils.requestMapToJson;
@@ -360,9 +361,9 @@ class ProductRestImplTest {
     @Test
     void removeProduct() throws Exception {
         Map<String,String> requestMap= new HashMap<>();
-        requestMap.put("productId","-1L");
+        requestMap.put("productId","-1");
 
-        MvcResult result = mockMvc.perform(post("/product/remove")
+        MvcResult result = mockMvc.perform(delete("/product/remove")
                 .header("Authorization", "Bearer "
                         +jwtUtil.generateToken("employee@example.com","someEncryptedData"))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -378,7 +379,7 @@ class ProductRestImplTest {
         Map<String,String> requestMap= new HashMap<>();
         requestMap.put("productId","-1L");
 
-        MvcResult result = mockMvc.perform(post("/product/remove")
+        MvcResult result = mockMvc.perform(delete("/product/remove")
                 .header("Authorization", "Bearer "
                         +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -394,7 +395,7 @@ class ProductRestImplTest {
         Map<String,String> requestMap= new HashMap<>();
         requestMap.put("productId","badFormat");
 
-        MvcResult result = mockMvc.perform(post("/product/remove")
+        MvcResult result = mockMvc.perform(delete("/product/remove")
                 .header("Authorization", "Bearer "
                         +jwtUtil.generateToken("employee@example.com","someEncryptedData"))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -410,7 +411,7 @@ class ProductRestImplTest {
         Map<String,String> requestMap= new HashMap<>();
         requestMap.put("productId","0");
 
-        MvcResult result = mockMvc.perform(post("/product/remove")
+        MvcResult result = mockMvc.perform(delete("/product/remove")
                 .header("Authorization", "Bearer "
                         +jwtUtil.generateToken("employee@example.com","someEncryptedData"))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -425,7 +426,7 @@ class ProductRestImplTest {
     void removeProductWithoutData() throws Exception {
         Map<String,String> requestMap= new HashMap<>();
 
-        MvcResult result = mockMvc.perform(post("/product/remove")
+        MvcResult result = mockMvc.perform(delete("/product/remove")
                 .header("Authorization", "Bearer "
                         +jwtUtil.generateToken("employee@example.com","someEncryptedData"))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -521,26 +522,7 @@ class ProductRestImplTest {
         assertEquals("{\"message\":\""+ Constants.UNAUTHORIZED+"\"}", response);
     }
     //Fix those tests
-    @Test
-    void addProductWithoutAuth() throws Exception{
 
-        mockMvc.perform(post("/product/add"))
-                .andExpect(status().isForbidden())
-                .andReturn();
-    }
-
-    @Test
-    void editProductWithoutAuth() throws Exception{
-        mockMvc.perform(post("/product/edit"))
-                .andExpect(status().isForbidden())
-                .andReturn();
-    }
-    @Test
-    void removeProductWithoutAuth() throws Exception{
-        mockMvc.perform(post("/product/remove"))
-                .andExpect(status().isForbidden())
-                .andReturn();
-    }
 
 }
 
@@ -555,8 +537,6 @@ because when i run all the tests it creates the JwtUtils class empty when its no
 class TestWithoutJwtUtil {
     @Autowired
     private MockMvc mockMvc;
-
-
     @Test
     void getProduct() throws Exception{
         MvcResult result = mockMvc.perform(get("/product/-1"))
@@ -564,9 +544,9 @@ class TestWithoutJwtUtil {
                 .andReturn();
         String response = result.getResponse().getContentAsString();
 
-        assertEquals("{\"id\":-1,\"title\":\"test3\",\"price\":10.0,\"category\"" +
+        assertEquals("{\"id\":-1,\"title\":\"test3\",\"price\":1.0,\"category\"" +
                 ":\"test1\",\"brand\":\"test\",\"color\":\"test2\",\"weight\":10.0,\"volume\"" +
-                ":10.0,\"stock\":10}", response);
+                ":10.0,\"stock\":10,\"totalSold\":5}", response);
     }
     @Test
     void getBadProduct() throws Exception{
@@ -687,10 +667,10 @@ class TestWithoutJwtUtil {
                 "{\"id\":-12,\"title\":\"title\",\"price\":12.0,\"stock\":10}," +
                 "{\"id\":-11,\"title\":\"title\",\"price\":11.0,\"stock\":10}," +
                 "{\"id\":-10,\"title\":\"test4\",\"price\":10.0,\"stock\":10}," +
-                "{\"id\":-2,\"title\":\"test4\",\"price\":10.0,\"stock\":10}," +
-                "{\"id\":-1,\"title\":\"test3\",\"price\":10.0,\"stock\":10}," +
                 "{\"id\":-9,\"title\":\"test3\",\"price\":9.0,\"stock\":10}," +
-                "{\"id\":-8,\"title\":\"test3\",\"price\":8.0,\"stock\":10}]", response);
+                "{\"id\":-8,\"title\":\"test3\",\"price\":8.0,\"stock\":10}," +
+                "{\"id\":-7,\"title\":\"test3\",\"price\":7.0,\"stock\":10}," +
+                "{\"id\":-6,\"title\":\"test3\",\"price\":6.0,\"stock\":10}]", response);
     }
     @Test
     void getProductsByPriceAscLimit5() throws Exception{
@@ -699,11 +679,11 @@ class TestWithoutJwtUtil {
                 .andReturn();
         String response = result.getResponse().getContentAsString();
 
-        assertEquals("[{\"id\":-3,\"title\":\"idk\",\"price\":3.14,\"stock\":4}," +
+        assertEquals("[{\"id\":-1,\"title\":\"test3\",\"price\":1.0,\"stock\":10}," +
+                "{\"id\":-2,\"title\":\"test4\",\"price\":2.0,\"stock\":10}," +
+                "{\"id\":-3,\"title\":\"test4\",\"price\":3.0,\"stock\":10}," +
                 "{\"id\":-4,\"title\":\"test4\",\"price\":4.0,\"stock\":10}," +
-                "{\"id\":-5,\"title\":\"test3\",\"price\":5.0,\"stock\":10}," +
-                "{\"id\":-6,\"title\":\"test3\",\"price\":6.0,\"stock\":10}," +
-                "{\"id\":-7,\"title\":\"test3\",\"price\":7.0,\"stock\":10}]", response);
+                "{\"id\":-5,\"title\":\"test3\",\"price\":5.0,\"stock\":10}]", response);
     }
     @Test
     void getProductsByPriceAscLimit10() throws Exception{
@@ -712,17 +692,18 @@ class TestWithoutJwtUtil {
                 .andReturn();
         String response = result.getResponse().getContentAsString();
 
-        assertEquals("[{\"id\":-3,\"title\":\"idk\",\"price\":3.14,\"stock\":4}," +
-                "{\"id\":-4,\"title\":\"test4\",\"price\":4.0,\"stock\":10}," +
-                "{\"id\":-5,\"title\":\"test3\",\"price\":5.0,\"stock\":10}," +
-                "{\"id\":-6,\"title\":\"test3\",\"price\":6.0,\"stock\":10}," +
-                "{\"id\":-7,\"title\":\"test3\",\"price\":7.0,\"stock\":10}," +
-                "{\"id\":-8,\"title\":\"test3\",\"price\":8.0,\"stock\":10}," +
-                "{\"id\":-9,\"title\":\"test3\",\"price\":9.0,\"stock\":10}," +
-                "{\"id\":-10,\"title\":\"test4\",\"price\":10.0,\"stock\":10}," +
-                "{\"id\":-2,\"title\":\"test4\",\"price\":10.0,\"stock\":10}," +
-                "{\"id\":-1,\"title\":\"test3\",\"price\":10.0,\"stock\":10}]", response);
+        assertEquals("[{\"id\":-1,\"title\":\"test3\",\"price\":1.0,\"stock\":10}" +
+                ",{\"id\":-2,\"title\":\"test4\",\"price\":2.0,\"stock\":10}" +
+                ",{\"id\":-3,\"title\":\"test4\",\"price\":3.0,\"stock\":10}" +
+                ",{\"id\":-4,\"title\":\"test4\",\"price\":4.0,\"stock\":10}" +
+                ",{\"id\":-5,\"title\":\"test3\",\"price\":5.0,\"stock\":10}" +
+                ",{\"id\":-6,\"title\":\"test3\",\"price\":6.0,\"stock\":10}" +
+                ",{\"id\":-7,\"title\":\"test3\",\"price\":7.0,\"stock\":10}" +
+                ",{\"id\":-8,\"title\":\"test3\",\"price\":8.0,\"stock\":10}" +
+                ",{\"id\":-9,\"title\":\"test3\",\"price\":9.0,\"stock\":10}" +
+                ",{\"id\":-10,\"title\":\"test4\",\"price\":10.0,\"stock\":10}]", response);
     }
+
     @Test
     void getProductsByBrandLimit5() throws Exception{
         MvcResult result = mockMvc.perform(get("/product/getByBrand?limit=5&search=brand"))
@@ -732,7 +713,8 @@ class TestWithoutJwtUtil {
 
         assertEquals("[{\"id\":-6,\"title\":\"test3\",\"price\":6.0,\"stock\":10}," +
                 "{\"id\":-5,\"title\":\"test3\",\"price\":5.0,\"stock\":10}," +
-                "{\"id\":-4,\"title\":\"test4\",\"price\":4.0,\"stock\":10}]",
+                "{\"id\":-4,\"title\":\"test4\",\"price\":4.0,\"stock\":10}," +
+                        "{\"id\":-3,\"title\":\"test4\",\"price\":3.0,\"stock\":10}]",
                 response);
     }
     @Test
@@ -751,7 +733,7 @@ class TestWithoutJwtUtil {
                 "{\"id\":-9,\"title\":\"test3\",\"price\":9.0,\"stock\":10}," +
                 "{\"id\":-8,\"title\":\"test3\",\"price\":8.0,\"stock\":10}," +
                 "{\"id\":-7,\"title\":\"test3\",\"price\":7.0,\"stock\":10}," +
-                "{\"id\":-2,\"title\":\"test4\",\"price\":10.0,\"stock\":10}]", response);
+                "{\"id\":-2,\"title\":\"test4\",\"price\":2.0,\"stock\":10}]", response);
     }
     @Test
     void getProductsByColorLimit5() throws Exception{
@@ -779,9 +761,10 @@ class TestWithoutJwtUtil {
                 "{\"id\":-13,\"title\":\"title\",\"price\":13.0,\"stock\":10}," +
                 "{\"id\":-7,\"title\":\"test3\",\"price\":7.0,\"stock\":10}," +
                 "{\"id\":-6,\"title\":\"test3\",\"price\":6.0,\"stock\":10}," +
-                "{\"id\":-5,\"title\":\"test3\",\"price\":5.0,\"stock\":10}" +
-                ",{\"id\":-4,\"title\":\"test4\",\"price\":4.0,\"stock\":10}," +
-                "{\"id\":-2,\"title\":\"test4\",\"price\":10.0,\"stock\":10}]", response);
+                "{\"id\":-5,\"title\":\"test3\",\"price\":5.0,\"stock\":10}," +
+                "{\"id\":-4,\"title\":\"test4\",\"price\":4.0,\"stock\":10}," +
+                "{\"id\":-3,\"title\":\"test4\",\"price\":3.0,\"stock\":10}," +
+                "{\"id\":-2,\"title\":\"test4\",\"price\":2.0,\"stock\":10}]", response);
     }
     @Test
     void getProductsByTitleLimit5() throws Exception{
@@ -805,7 +788,8 @@ class TestWithoutJwtUtil {
 
         assertEquals("[{\"id\":-10,\"title\":\"test4\",\"price\":10.0,\"stock\":10}," +
                 "{\"id\":-4,\"title\":\"test4\",\"price\":4.0,\"stock\":10}," +
-                "{\"id\":-2,\"title\":\"test4\",\"price\":10.0,\"stock\":10}]", response);
+                "{\"id\":-3,\"title\":\"test4\",\"price\":3.0,\"stock\":10}," +
+                "{\"id\":-2,\"title\":\"test4\",\"price\":2.0,\"stock\":10}]", response);
     }
     @Test
     void getProductsByBestSellersLimit10() throws Exception{

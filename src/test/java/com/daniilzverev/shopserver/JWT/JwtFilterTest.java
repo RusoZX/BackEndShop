@@ -48,7 +48,6 @@ class JwtFilterTest {
 
         // Set up the necessary headers
         Mockito.when(request.getServletPath()).thenReturn("/user/profile");
-        Mockito.when(request.getHeader("Authorization")).thenReturn("Bearer <valid_jwt_token>");
 
         underTest.doFilterInternal(request, response, filterChain);
 

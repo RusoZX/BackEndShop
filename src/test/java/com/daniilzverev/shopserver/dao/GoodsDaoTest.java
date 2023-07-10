@@ -29,6 +29,7 @@ class GoodsDaoTest {
         item.setQuantity(1);
         item.setProduct(giveTestProduct2());
         item.setId(-2L);
+
         expected.add(item);
         item = new Goods();
         item.setOrder(giveTestOrder());
@@ -96,6 +97,7 @@ class GoodsDaoTest {
         return product;
     }
     private Order giveTestOrder(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
         Order order = new Order();
         order.setId(-1L);
         order.setUser(giveTestUser());
@@ -104,6 +106,7 @@ class GoodsDaoTest {
         order.setDeliveryMethod("delivery");
         order.setPaymentStatus(false);
         order.setOrderStatus("pending");
+        order.setCreatedDate(LocalDate.parse("2023-07-01",formatter));
 
         return order;
     }

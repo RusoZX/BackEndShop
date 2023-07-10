@@ -273,7 +273,7 @@ class ShoppingCartServiceImplTest {
         when(shoppingCartDao.findByProductAndUser(-1L,-1L)).thenReturn(giveTestShoppingCart());
         ResponseEntity<String> response = underTest.editCart(requestMap);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\"" + Constants.UPDATED + "\"}", response.getBody());
         ShoppingCart item = giveTestShoppingCart();
         item.setQuantity(5);

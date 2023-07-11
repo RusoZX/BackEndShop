@@ -21,4 +21,6 @@ public class Constants {
     public static final String REMOVED = "Successfully removed";
     public static final String UNAUTHORIZED = "User unauthorized";
     public static final String ORDER_CREATED = "Order Successfully created";
+
+    public static final String SECRET = "javaschool2023";
 }

@@ -25,6 +25,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
+import static com.daniilzverev.shopserver.utils.Utils.encode;
+import static com.daniilzverev.shopserver.utils.Utils.matches;
+
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService {
@@ -150,7 +153,7 @@ public class UserServiceImpl implements UserService {
                 User user = userDao.findByEmail(jwtFilter.getCurrentUser());
 
                 if (!Objects.isNull(user))
-                    if (user.getPwd().equals(requestMap.get("oldPwd"))) {
+                    if (matches(requestMap.get("oldPwd"), user.getPwd())) {
                         user.setPwd(requestMap.get("newPwd"));
                         userDao.save(user);
                         return Utils.getResponseEntity(Constants.UPDATED, HttpStatus.OK);
@@ -413,8 +416,7 @@ public class UserServiceImpl implements UserService {
         user.setName(map.get("name"));
         user.setSurname(map.get("surname"));
         user.setEmail(map.get("email"));
-        //Password should be sent encrypted
-        user.setPwd(map.get("pwd"));
+        user.setPwd(encode(map.get("pwd")));
         user.setBirthDate(LocalDate.parse(map.get("birthdate"), formatter));
         user.setRole("client");
 

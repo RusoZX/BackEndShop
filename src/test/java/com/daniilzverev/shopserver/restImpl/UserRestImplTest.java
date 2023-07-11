@@ -156,9 +156,9 @@ class UserRestImplTest {
         String response = result.getResponse().getContentAsString();
 
         assertEquals("[{\"id\":-2,\"name\":\"test\",\"surname\":\"test1\",\"birthDate\":" +
-                "\"2001-09-11\",\"email\":\"employee@example.com\",\"pwd\":\"someEncryptedData\"," +
+                "\"2001-09-11\",\"email\":\"employee@example.com\",\"pwd\":\"$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu\"," +
                 "\"role\":\"employee\"},{\"id\":-1,\"name\":\"test\",\"surname\":\"test1\",\"birthDate" +
-                "\":\"2001-09-11\",\"email\":\"example1@example.com\",\"pwd\":\"someEncryptedData\"," +
+                "\":\"2001-09-11\",\"email\":\"example1@example.com\",\"pwd\":\"$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu\"," +
                 "\"role\":\"client\"}]", response);
     }
     @Test

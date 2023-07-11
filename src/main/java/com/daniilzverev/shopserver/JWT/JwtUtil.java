@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -13,9 +14,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.daniilzverev.shopserver.utils.Utils.matches;
+
 @Slf4j
 @Service
 public class JwtUtil {
+
     private String secret = "TiteRuso";
 
     public String extractUserName(String token){
@@ -67,7 +71,7 @@ public class JwtUtil {
             final String pwd = extractPwd(token);
 
             return username.equals(userDetails.getUsername())
-                    && pwd.equals(userDetails.getPassword())
+                    && matches(pwd,userDetails.getPassword())
                     && !isTokenExpired(token);
         }catch(ExpiredJwtException ex){
             log.error("TOKEN EXPIRED :"+ex.getLocalizedMessage());

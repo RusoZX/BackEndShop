@@ -1,41 +1,42 @@
 package com.daniilzverev.shopserver.JWT;
 
-import com.daniilzverev.shopserver.constants.Constants;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@RunWith(MockitoJUnitRunner.class)
 class JwtUtilTest {
 
     @Mock
     private UserDetails userDetails;
 
-    JwtUtil underTest = new JwtUtil();
+    @InjectMocks
+    JwtUtil underTest;
+    @BeforeEach
+    void setup() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     String secret="TiteRuso";
     String username="example@example.com";
-    String pwd="SomeEncryptedInfo";
+    String pwd="$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu";
 
-    //Generate a token to test the methods with "example@example.com" and "SomeEncryptedInfo"
+    //Generate a token to test the methods with "example@example.com" and "SomeEncryptedData"
     final String exampleToken= newToken();
 
     final Claims exampleClaims = Jwts.parser().setSigningKey(secret).parseClaimsJws(exampleToken).getBody();
@@ -105,7 +106,7 @@ class JwtUtilTest {
 
     private String newToken(){
         Map<String, Object> claims = new HashMap<>();
-        claims.put("pwd",pwd);
+        claims.put("pwd","someEncryptedData");
 
         return Jwts.builder()
                 .setClaims(claims)

@@ -1,2 +1,2 @@
 Insert into user(id, name, surname, email, birthdate, pwd, role) values(-1, "test", "test1", "example@example.com",
- "2001-09-11", "someEncryptedData", "client");
+ "2001-09-11", "$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu", "client");

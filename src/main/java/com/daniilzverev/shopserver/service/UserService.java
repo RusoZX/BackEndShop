@@ -19,4 +19,5 @@ public interface UserService {
     ResponseEntity<String> removeAddress(Map<String, String> requestMap);
     ResponseEntity<List<AddressWrapper>> getAllAddress();
     ResponseEntity<String> getAddress(String idAddress);
+    ResponseEntity<String> checkToken(String token);
 }

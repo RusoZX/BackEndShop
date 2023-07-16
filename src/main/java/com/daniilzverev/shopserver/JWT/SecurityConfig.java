@@ -54,7 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
                 //Here are the urls that will not need authentication
-                .antMatchers("/user/login","/user/signup","/product/{productId}")
+                .antMatchers("/user/login","/user/signup","/user/check","/product/{productId}")
                 .permitAll()
                 //Here we tell the security that all the other urls should be authenticated
                 .anyRequest()

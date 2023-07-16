@@ -22,6 +22,6 @@ INSERT INTO goods (order_id, product_id, quantity)
 VALUES (1, 1, 10), (1, 2, 5);
 
 -- Insert test data for Order
-INSERT INTO `order` (userId, user_address, payment_method, delivery_method, payment_status, order_status, created_date)
+INSERT INTO `order` (user_id, user_address, payment_method, delivery_method, payment_status, order_status, created_date)
 VALUES (1, 1, 'Payment Method 1', 'Delivery Method 1', true, 'Order Status 1', '2023-07-01');
 

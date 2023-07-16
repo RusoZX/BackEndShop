@@ -43,4 +43,7 @@ public interface UserRest {
 
     @GetMapping(path="/address/get{idAddress}")
     ResponseEntity<String> getAddress(@PathVariable String idAddress);
+
+    @GetMapping(path="/check")
+    ResponseEntity<String> checkToken(@RequestParam(value = "token") String token);
 }

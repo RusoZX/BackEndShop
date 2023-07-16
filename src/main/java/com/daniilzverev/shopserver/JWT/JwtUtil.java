@@ -71,7 +71,7 @@ public class JwtUtil {
             final String pwd = extractPwd(token);
 
             return username.equals(userDetails.getUsername())
-                    && matches(pwd,userDetails.getPassword())
+                    && pwd.equals(userDetails.getPassword())
                     && !isTokenExpired(token);
         }catch(ExpiredJwtException ex){
             log.error("TOKEN EXPIRED :"+ex.getLocalizedMessage());

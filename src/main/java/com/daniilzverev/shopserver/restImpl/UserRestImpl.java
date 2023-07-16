@@ -128,7 +128,18 @@ public class UserRestImpl implements UserRest {
             ex.printStackTrace();
         }
 
-        return new ResponseEntity<String>("",HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<String>(Constants.SERVER_ERROR,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> checkToken(String token) {
+        try{
+            return userService.checkToken(token);
+        }catch(Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return new ResponseEntity<String>(Constants.SERVER_ERROR,HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 

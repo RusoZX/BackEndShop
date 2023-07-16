@@ -11,6 +11,7 @@ import com.daniilzverev.shopserver.entity.User;
 import com.daniilzverev.shopserver.service.UserService;
 import com.daniilzverev.shopserver.utils.Utils;
 import com.daniilzverev.shopserver.wrapper.AddressWrapper;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -321,6 +322,24 @@ public class UserServiceImpl implements UserService {
         //It will only get to here through an error
         return new ResponseEntity<String>("", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @Override
+    public ResponseEntity<String> checkToken(String token) {
+        log.info("Checking Token " + token );
+        try {
+            User user = userDao.findByEmail(jwtUtil.extractUserName(token));
+            if (!Objects.isNull(user)) {
+                if (jwtUtil.extractPwd(token).equals(user.getPwd())) {
+                    return Utils.getResponseEntity(Constants.CHECKED, HttpStatus.OK);
+                } else
+                    return Utils.getResponseEntity(Constants.BAD_CREDENTIALS, HttpStatus.BAD_REQUEST);
+            } else
+                return Utils.getResponseEntity(Constants.USER_DONT_EXIST, HttpStatus.BAD_REQUEST);
+        }catch (ExpiredJwtException e){
+            return Utils.getResponseEntity(Constants.EXPIRED, HttpStatus.BAD_REQUEST);
+        }
+    }
+
     private boolean checkChangePwdMap(Map<String,String> requestMap){
         return requestMap.containsKey("oldPwd")&&requestMap.containsKey("newPwd");
     }

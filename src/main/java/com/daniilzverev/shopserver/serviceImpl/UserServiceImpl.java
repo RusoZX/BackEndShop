@@ -155,7 +155,7 @@ public class UserServiceImpl implements UserService {
 
                 if (!Objects.isNull(user))
                     if (matches(requestMap.get("oldPwd"), user.getPwd())) {
-                        user.setPwd(requestMap.get("newPwd"));
+                        user.setPwd(Utils.encode(requestMap.get("newPwd")));
                         userDao.save(user);
                         return Utils.getResponseEntity(Constants.UPDATED, HttpStatus.OK);
 

@@ -398,7 +398,6 @@ class UserServiceImplTest {
         requestMap.put("street","idk");
         requestMap.put("home","idk");
         requestMap.put("apartment","idk");
-        requestMap.put("userId","-1");
 
         when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
@@ -530,14 +529,11 @@ class UserServiceImplTest {
     public void deleteAddress(){
         when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
 
-        Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("addressId","-1");
-
         when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
 
         when(addressDao.findById(-1L)).thenReturn(Optional.of(giveTestAddress()));
 
-        ResponseEntity<String> response= underTest.removeAddress(requestMap);
+        ResponseEntity<String> response= underTest.removeAddress("-1");
 
         assertEquals(Utils.getResponseEntity(Constants.REMOVED,HttpStatus.OK), response);
 

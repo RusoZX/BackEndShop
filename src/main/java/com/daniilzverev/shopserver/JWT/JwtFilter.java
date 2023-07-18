@@ -35,7 +35,9 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         //Here we check if the urls are the ones that dont need authentication
-        if(httpServletRequest.getServletPath().matches("/user/login|/user/signup|/user/check|^/product/\\d+$")){
+        if(httpServletRequest.getServletPath().matches("/user/login|/user/signup|/user/check|^/product/\\d+$" +
+                "|/product/getByBestSellers|/product/getByTitle|/product/getByCategory|/product/getByPriceAsc" +
+                "|/product/getByPriceDesc|/product/getByBrand|/product/getByBestColor|/product/getByNone")){
             filterChain.doFilter(httpServletRequest, httpServletResponse);
         } else{
 
@@ -52,7 +54,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     UserDetails userDetails = service.loadUserByUsername(userName);
                     //Here we validate that the user has the correct credentials and a valid token
                     if (jwtUtil.validateToken(token, userDetails)) {
-                        log.info("Token validated :" + userName);
+                        log.info("------------------------------------Token validated :" + userName);
                         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                                 new UsernamePasswordAuthenticationToken(userDetails, null,
                                         userDetails.getAuthorities());

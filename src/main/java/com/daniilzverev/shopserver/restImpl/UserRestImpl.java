@@ -101,9 +101,9 @@ public class UserRestImpl implements UserRest {
     }
 
     @Override
-    public ResponseEntity<String> removeAddress(Map<String, String> requestMap) {
+    public ResponseEntity<String> removeAddress(String id) {
         try{
-            return userService.removeAddress(requestMap);
+            return userService.removeAddress(id);
         }catch(Exception ex){
             ex.printStackTrace();
         }

@@ -16,7 +16,7 @@ public interface UserService {
     ResponseEntity<List<User>> getUsers();
     ResponseEntity<String> addAddress(Map<String, String> requestMap);
     ResponseEntity<String> editAddress(Map<String, String> requestMap);
-    ResponseEntity<String> removeAddress(Map<String, String> requestMap);
+    ResponseEntity<String> removeAddress(String idAddress);
     ResponseEntity<List<AddressWrapper>> getAllAddress();
     ResponseEntity<String> getAddress(String idAddress);
     ResponseEntity<String> checkToken(String token);

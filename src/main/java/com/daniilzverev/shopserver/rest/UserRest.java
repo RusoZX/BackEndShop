@@ -36,7 +36,7 @@ public interface UserRest {
     ResponseEntity<String> editAddress(@RequestBody Map<String, String> requestMap);
 
     @DeleteMapping(path="/address/remove")
-    ResponseEntity<String> removeAddress(@RequestBody Map<String, String> requestMap);
+    ResponseEntity<String> removeAddress(@RequestParam(value = "id") String id);
 
     @GetMapping(path="/address/getAll")
     ResponseEntity<List<AddressWrapper>> getAllAddress();

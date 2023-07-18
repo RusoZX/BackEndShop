@@ -170,7 +170,6 @@ class UserRestImplTest {
         requestMap.put("street","idk");
         requestMap.put("home","idk");
         requestMap.put("apartment","idk");
-        requestMap.put("userId","-1");
 
         MvcResult result = mockMvc.perform(post("/user/address/add")
                 .header("Authorization", "Bearer "
@@ -190,52 +189,6 @@ class UserRestImplTest {
         requestMap.put("country","idk");
         requestMap.put("city","idk");
 
-
-        MvcResult result = mockMvc.perform(post("/user/address/add")
-                .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestMapToJson(requestMap)))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-        String response = result.getResponse().getContentAsString();
-
-        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}"
-                , response);
-    }
-    @Test
-    public void addAddressBadIdFormat() throws Exception{
-        Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("country","idk");
-        requestMap.put("city","idk");
-        requestMap.put("postalCode","idk");
-        requestMap.put("street","idk");
-        requestMap.put("home","idk");
-        requestMap.put("apartment","idk");
-        requestMap.put("userId","badFormat");
-
-        MvcResult result = mockMvc.perform(post("/user/address/add")
-                .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestMapToJson(requestMap)))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-        String response = result.getResponse().getContentAsString();
-
-        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}"
-                , response);
-    }
-    @Test
-    public void addAddressBadUser() throws Exception{
-        Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("country","idk");
-        requestMap.put("city","idk");
-        requestMap.put("postalCode","idk");
-        requestMap.put("street","idk");
-        requestMap.put("home","idk");
-        requestMap.put("apartment","idk");
-        requestMap.put("userId","0");
 
         MvcResult result = mockMvc.perform(post("/user/address/add")
                 .header("Authorization", "Bearer "
@@ -344,14 +297,10 @@ class UserRestImplTest {
 
     @Test
     public void removeAddress() throws Exception{
-        Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("addressId","-1");
 
-        MvcResult result = mockMvc.perform(delete("/user/address/remove")
+        MvcResult result = mockMvc.perform(delete("/user/address/remove-1")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestMapToJson(requestMap)))
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData")))
                 .andExpect(status().isOk())
                 .andReturn();
         String response = result.getResponse().getContentAsString();
@@ -361,13 +310,10 @@ class UserRestImplTest {
     }
     @Test
     public void removeAddressBadFormat() throws Exception{
-        Map<String, String> requestMap = new HashMap<>();
 
         MvcResult result = mockMvc.perform(delete("/user/address/remove")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestMapToJson(requestMap)))
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData")))
                 .andExpect(status().isBadRequest())
                 .andReturn();
         String response = result.getResponse().getContentAsString();
@@ -394,14 +340,10 @@ class UserRestImplTest {
     }
     @Test
     public void removeAddressBadUser() throws Exception{
-        Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("addressId","-3");
 
-        MvcResult result = mockMvc.perform(delete("/user/address/remove")
+        MvcResult result = mockMvc.perform(delete("/user/address/remove-3")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestMapToJson(requestMap)))
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData")))
                 .andExpect(status().isBadRequest())
                 .andReturn();
         String response = result.getResponse().getContentAsString();
@@ -411,14 +353,10 @@ class UserRestImplTest {
     }
     @Test
     public void removeAddressBadAddress() throws Exception{
-        Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("addressId","0");
 
-        MvcResult result = mockMvc.perform(delete("/user/address/remove")
+        MvcResult result = mockMvc.perform(delete("/user/address/remove0")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestMapToJson(requestMap)))
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData")))
                 .andExpect(status().isBadRequest())
                 .andReturn();
         String response = result.getResponse().getContentAsString();

@@ -193,20 +193,17 @@ public class UserServiceImpl implements UserService {
                 log.info("User " + jwtFilter.getCurrentUser() + " Trying to add an address :" + requestMap);
                 User user = userDao.findByEmail(jwtFilter.getCurrentUser());
                 if (!Objects.isNull(user)){
-                    Long userId = Long.parseLong(requestMap.get("userId"));
-                    if(user.getId().equals(userId)){
-                        Address address = new Address();
-                        address.setCountry(requestMap.get("country"));
-                        address.setCity(requestMap.get("city"));
-                        address.setPostalCode(requestMap.get("postalCode"));
-                        address.setStreet(requestMap.get("street"));
-                        address.setHome(requestMap.get("home"));
-                        address.setApartment(requestMap.get("apartment"));
-                        address.setUser(user);
+                    Address address = new Address();
+                    address.setCountry(requestMap.get("country"));
+                    address.setCity(requestMap.get("city"));
+                    address.setPostalCode(requestMap.get("postalCode"));
+                    address.setStreet(requestMap.get("street"));
+                    address.setHome(requestMap.get("home"));
+                    address.setApartment(requestMap.get("apartment"));
+                    address.setUser(user);
 
-                        addressDao.save(address);
-                        return Utils.getResponseEntity(Constants.ADDRESS_ADDED, HttpStatus.OK);
-                    }else return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+                    addressDao.save(address);
+                    return Utils.getResponseEntity(Constants.ADDRESS_ADDED, HttpStatus.OK);
                 }
             } else return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
         }catch (Exception ex){
@@ -256,13 +253,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<String> removeAddress(Map<String, String> requestMap) {
+    public ResponseEntity<String> removeAddress(String idAddress) {
         try {
-            if (checkRemoveAddressMap(requestMap)) {
-                log.info("User " + jwtFilter.getCurrentUser() + " Trying to remove an address :" + requestMap);
+            if (checkRemoveAddress(idAddress)) {
+                log.info("User " + jwtFilter.getCurrentUser() + " Trying to remove an address :" + idAddress);
                 User user = userDao.findByEmail(jwtFilter.getCurrentUser());
                 if (!Objects.isNull(user)){
-                    Optional<Address> optAddress = addressDao.findById(Long.parseLong(requestMap.get("addressId")));
+                    Optional<Address> optAddress = addressDao.findById(Long.parseLong(idAddress));
                     if(optAddress.isPresent()){
                         if(user.equals(optAddress.get().getUser())){
                             addressDao.delete(optAddress.get());
@@ -325,7 +322,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<String> checkToken(String token) {
-        log.info("Checking Token " + token );
+        log.info("------------------------------------------Checking Token " + token );
         try {
             User user = userDao.findByEmail(jwtUtil.extractUserName(token));
             if (!Objects.isNull(user)) {
@@ -345,17 +342,10 @@ public class UserServiceImpl implements UserService {
     }
 
     private boolean checkAddAddressMap(Map<String,String> requestMap){
-        if(requestMap.containsKey("country")&&requestMap.containsKey("city")
+        return requestMap.containsKey("country")&&requestMap.containsKey("city")
                 &&requestMap.containsKey("postalCode")&&requestMap.containsKey("street")
-                &&requestMap.containsKey("home")&&requestMap.containsKey("apartment")
-                &&requestMap.containsKey("userId"))
-            try{
-                Long.parseLong(requestMap.get("userId"));
-                return true;
-            }catch (NumberFormatException e){
-                log.error("User id bad format");
-            }
-        return false;
+                &&requestMap.containsKey("home")&&requestMap.containsKey("apartment");
+
     }
     private boolean checkEditAddressMap(Map<String,String> requestMap){
         if(requestMap.containsKey("addressId")&&(requestMap.containsKey("country")||requestMap.containsKey("city")
@@ -369,10 +359,10 @@ public class UserServiceImpl implements UserService {
             }
         return false;
     }
-    private boolean checkRemoveAddressMap(Map<String,String> requestMap){
-        if(requestMap.containsKey("addressId"))
+    private boolean checkRemoveAddress(String idAddress){
+        if(!idAddress.isEmpty())
             try{
-                Long.parseLong(requestMap.get("addressId"));
+                Long.parseLong(idAddress);
                 return true;
             }catch (NumberFormatException e){
                 log.error("Address id bad format");

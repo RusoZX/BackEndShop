@@ -110,8 +110,6 @@ class ShoppingCartServiceImplTest {
 
     @Test
     void removeOfCartWithCorrectData() {
-        Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("productId", "-1");
 
         when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
 
@@ -120,7 +118,7 @@ class ShoppingCartServiceImplTest {
         when(productDao.findById(-1L)).thenReturn(Optional.of(giveTestProduct()));
 
         when(shoppingCartDao.findByProductAndUser(-1L,-1L)).thenReturn(giveTestShoppingCart());
-        ResponseEntity<String> response = underTest.removeOfCart(requestMap);
+        ResponseEntity<String> response = underTest.removeOfCart("-1");
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("{\"message\":\"" + Constants.REMOVED + "\"}", response.getBody());
@@ -129,7 +127,6 @@ class ShoppingCartServiceImplTest {
     }
     @Test
     void removeOfCartWithBadData() {
-        Map<String, String> requestMap = new HashMap<>();
 
         when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
 
@@ -138,15 +135,13 @@ class ShoppingCartServiceImplTest {
         when(productDao.findById(-1L)).thenReturn(Optional.of(giveTestProduct()));
 
         when(shoppingCartDao.findByProductAndUser(-1L,-1L)).thenReturn(giveTestShoppingCart());
-        ResponseEntity<String> response = underTest.removeOfCart(requestMap);
+        ResponseEntity<String> response = underTest.removeOfCart("");
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\"" + Constants.INVALID_DATA + "\"}", response.getBody());
     }
     @Test
     void removeOfCartWithBadFormat() {
-        Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("productId", "badFormat");
 
         when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
 
@@ -155,15 +150,13 @@ class ShoppingCartServiceImplTest {
         when(productDao.findById(-1L)).thenReturn(Optional.of(giveTestProduct()));
 
         when(shoppingCartDao.findByProductAndUser(-1L,-1L)).thenReturn(giveTestShoppingCart());
-        ResponseEntity<String> response = underTest.removeOfCart(requestMap);
+        ResponseEntity<String> response = underTest.removeOfCart("badFormat");
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\"" + Constants.INVALID_DATA + "\"}", response.getBody());
     }
     @Test
     void removeOfCartWithBadProduct() {
-        Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("productId", "0");
 
         when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
 
@@ -172,7 +165,7 @@ class ShoppingCartServiceImplTest {
         when(productDao.findById(-0L)).thenReturn(Optional.empty());
 
         when(shoppingCartDao.findByProductAndUser(-1L,-1L)).thenReturn(giveTestShoppingCart());
-        ResponseEntity<String> response = underTest.removeOfCart(requestMap);
+        ResponseEntity<String> response = underTest.removeOfCart("0");
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("{\"message\":\"" + Constants.PRODUCT_DONT_EXIST + "\"}", response.getBody());

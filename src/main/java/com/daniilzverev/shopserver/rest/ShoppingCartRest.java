@@ -14,7 +14,7 @@ public interface ShoppingCartRest {
     @PostMapping("/add")
     ResponseEntity<String> addToCart(@RequestBody Map<String, String> requestMap);
     @DeleteMapping("/remove")
-    ResponseEntity<String> removeOfCart(@RequestBody Map<String, String> requestMap);
+    ResponseEntity<String> removeOfCart(@RequestParam String id);
     @DeleteMapping("/removeAll")
     ResponseEntity<String> removeAllOfCart();
     @GetMapping("/get")

@@ -33,9 +33,9 @@ public class ShoppingCartRestImpl implements ShoppingCartRest {
     }
 
     @Override
-    public ResponseEntity<String> removeOfCart(Map<String, String> requestMap) {
+    public ResponseEntity<String> removeOfCart(String id) {
         try{
-            return shoppingCartService.removeOfCart(requestMap);
+            return shoppingCartService.removeOfCart(id);
         }catch(Exception ex){
             ex.printStackTrace();
         }

@@ -9,7 +9,7 @@ import java.util.Map;
 
 public interface ShoppingCartService {
     ResponseEntity<String> addToCart(Map<String, String> requestMap);
-    ResponseEntity<String> removeOfCart(Map<String, String> requestMap);
+    ResponseEntity<String> removeOfCart(String id);
     ResponseEntity<String> removeAllOfCart();
     ResponseEntity<List<CartWrapper>> getCart();
     ResponseEntity<String> editCart(Map<String, String> requestMap);

@@ -45,11 +45,15 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                 if(!Objects.isNull(user)){
                     Optional<Product> optProduct = productDao.findById(Long.parseLong(requestMap.get("productId")));
                     if(optProduct.isPresent()){
-                        ShoppingCart newItem= new ShoppingCart();
-                        newItem.setProduct(optProduct.get());
-                        newItem.setUser(user);
-                        newItem.setQuantity(Integer.parseInt(requestMap.get("quantity")));
-                        shoppingCartDao.save(newItem);
+                        ShoppingCart item= shoppingCartDao.findByProductAndUser(optProduct.get().getId(),user.getId());
+                        if(Objects.isNull(item)){
+                            item.setProduct(optProduct.get());
+                            item.setUser(user);
+                            item.setQuantity(Integer.parseInt(requestMap.get("quantity")));
+                        }else{
+                            item.setQuantity(item.getQuantity()+Integer.parseInt(requestMap.get("quantity")));
+                        }
+                        shoppingCartDao.save(item);
 
                         return Utils.getResponseEntity(Constants.ITEM_ADDED, HttpStatus.OK);
                     }else
@@ -65,13 +69,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public ResponseEntity<String> removeOfCart(Map<String, String> requestMap) {
-        if(checkRemoveFromCartMap(requestMap))
+    public ResponseEntity<String> removeOfCart(String id) {
+        if(checkRemoveFromCartMap(id))
             try{
-                log.info("User "+jwtFilter.getCurrentUser()+" Trying to remove product to shopping cart:"+requestMap);
+                log.info("User "+jwtFilter.getCurrentUser()+" Trying to remove product to shopping cart:"+id);
                 User user = userDao.findByEmail(jwtFilter.getCurrentUser());
                 if(!Objects.isNull(user)){
-                    Optional<Product> optProduct = productDao.findById(Long.parseLong(requestMap.get("productId")));
+                    Optional<Product> optProduct = productDao.findById(Long.parseLong(id));
                     if(optProduct.isPresent()){
                         ShoppingCart existingItem =
                                 shoppingCartDao.findByProductAndUser( optProduct.get().getId(), user.getId());
@@ -110,7 +114,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public ResponseEntity<List<CartWrapper>> getCart() {
         try{
-            log.info("User "+jwtFilter.getCurrentUser()+" Trying to clean shopping cart");
+            log.info("User "+jwtFilter.getCurrentUser()+" Trying to get shopping cart");
             User user = userDao.findByEmail(jwtFilter.getCurrentUser());
             if(!Objects.isNull(user)){
                 List<CartWrapper> result = productDao.findAllInShoppingCart(user.getId());
@@ -152,13 +156,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private boolean checkRemoveFromCartMap(Map<String, String> requestMap){
-        if(requestMap.containsKey("productId"))
+    private boolean checkRemoveFromCartMap(String id){
+        if(!id.isEmpty())
             try{
-                Long.parseLong(requestMap.get("productId"));
+                Long.parseLong(id);
                 return true;
             }catch (NumberFormatException e){
-                log.error("Bad Number format in Add To Cart Petition");
+                log.error("Bad Number format in Remove from cart Petition");
             }
         return false;
     }

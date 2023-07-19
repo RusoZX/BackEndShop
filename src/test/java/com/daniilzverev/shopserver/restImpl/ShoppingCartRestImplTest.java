@@ -73,7 +73,7 @@ class ShoppingCartRestImplTest {
 
         MvcResult result = mockMvc.perform(post("/cart/add")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                        +jwtUtil.generateToken("example1@example.com","$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestMapToJson(requestMap)))
                 .andExpect(status().isBadRequest())
@@ -90,7 +90,7 @@ class ShoppingCartRestImplTest {
 
         MvcResult result = mockMvc.perform(post("/cart/add")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                        +jwtUtil.generateToken("example1@example.com","$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestMapToJson(requestMap)))
                 .andExpect(status().isBadRequest())
@@ -143,7 +143,7 @@ class ShoppingCartRestImplTest {
         requestMap.put("productId","badFormat");
         MvcResult result = mockMvc.perform(delete("/cart/remove")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                        +jwtUtil.generateToken("example1@example.com","$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestMapToJson(requestMap)))
                 .andExpect(status().isBadRequest())
@@ -158,7 +158,7 @@ class ShoppingCartRestImplTest {
         requestMap.put("productId","badFormat");
         MvcResult result = mockMvc.perform(delete("/cart/remove")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                        +jwtUtil.generateToken("example1@example.com","$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestMapToJson(requestMap)))
                 .andExpect(status().isBadRequest())
@@ -175,14 +175,11 @@ class ShoppingCartRestImplTest {
     }
     @Test
     void removeFromCartWithCorrectData() throws Exception {
-        Map<String,String> requestMap= new HashMap<>();
-        requestMap.put("productId","-1");
 
-        MvcResult result = mockMvc.perform(delete("/cart/remove")
+        MvcResult result = mockMvc.perform(delete("/cart/remove?id=-1")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestMapToJson(requestMap)))
+                        +jwtUtil.generateToken("example1@example.com","$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu"))
+                )
                 .andExpect(status().isOk())
                 .andReturn();
         String response = result.getResponse().getContentAsString();
@@ -202,7 +199,7 @@ class ShoppingCartRestImplTest {
 
         MvcResult result = mockMvc.perform(delete("/cart/removeAll")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                        +jwtUtil.generateToken("example1@example.com","$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestMapToJson(requestMap)))
                 .andExpect(status().isOk())
@@ -215,21 +212,19 @@ class ShoppingCartRestImplTest {
     void getCartWithCorrectData() throws Exception {
         MvcResult result = mockMvc.perform(get("/cart/get")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData")))
+                        +jwtUtil.generateToken("example1@example.com","$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu")))
                 .andExpect(status().isOk())
                 .andReturn();
         String response = result.getResponse().getContentAsString();
         //full json
-        assertEquals("[{\"id\":-2,\"title\":\"test4\",\"price\":10.0,\"category\":\"test2\",\"brand\":\"test1\"" +
-                ",\"color\":\"test3\",\"weight\":10.0,\"volume\":10.0,\"stock\":10},{\"id\":-1,\"title\":\"test3\"" +
-                ",\"price\":10.0,\"category\":\"test1\",\"brand\":\"test\",\"color\":\"test2\",\"weight\":10.0,\"" +
-                "volume\":10.0,\"stock\":10}]", response);
+        assertEquals("[{\"id\":-2,\"productId\":-2,\"title\":\"test4\",\"price\":10.0,\"quantity\":4}" +
+                ",{\"id\":-1,\"productId\":-1,\"title\":\"test3\",\"price\":10.0,\"quantity\":3}]", response);
     }
     @Test
     void getEmptyCart() throws Exception {
         MvcResult result = mockMvc.perform(get("/cart/get")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example2@example.com","someEncryptedData")))
+                        +jwtUtil.generateToken("example2@example.com","$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu")))
                 .andExpect(status().isOk())
                 .andReturn();
         String response = result.getResponse().getContentAsString();
@@ -250,7 +245,7 @@ class ShoppingCartRestImplTest {
 
         MvcResult result = mockMvc.perform(post("/cart/edit")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                        +jwtUtil.generateToken("example1@example.com","$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestMapToJson(requestMap)))
                 .andExpect(status().isOk())
@@ -265,7 +260,7 @@ class ShoppingCartRestImplTest {
 
         MvcResult result = mockMvc.perform(post("/cart/edit")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                        +jwtUtil.generateToken("example1@example.com","$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestMapToJson(requestMap)))
                 .andExpect(status().isBadRequest())
@@ -281,7 +276,7 @@ class ShoppingCartRestImplTest {
         requestMap.put("quantity","0");
         MvcResult result = mockMvc.perform(post("/cart/edit")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                        +jwtUtil.generateToken("example1@example.com","$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestMapToJson(requestMap)))
                 .andExpect(status().isBadRequest())
@@ -298,7 +293,7 @@ class ShoppingCartRestImplTest {
 
         MvcResult result = mockMvc.perform(post("/cart/edit")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                        +jwtUtil.generateToken("example1@example.com","$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestMapToJson(requestMap)))
                 .andExpect(status().isBadRequest())
@@ -315,7 +310,7 @@ class ShoppingCartRestImplTest {
 
         MvcResult result = mockMvc.perform(post("/cart/edit")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                        +jwtUtil.generateToken("example1@example.com","$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestMapToJson(requestMap)))
                 .andExpect(status().isBadRequest())
@@ -332,7 +327,7 @@ class ShoppingCartRestImplTest {
 
         MvcResult result = mockMvc.perform(post("/cart/edit")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
+                        +jwtUtil.generateToken("example1@example.com","$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestMapToJson(requestMap)))
                 .andExpect(status().isBadRequest())

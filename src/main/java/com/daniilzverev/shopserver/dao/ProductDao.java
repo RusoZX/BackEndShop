@@ -11,7 +11,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ProductDao extends JpaRepository<Product, Long> {
-    @Query("select new com.daniilzverev.shopserver.wrapper.CartWrapper(i.id, i.product.title, i.product.price, i.quantity)" +
+    @Query("select new com.daniilzverev.shopserver.wrapper.CartWrapper(i.id, i.product.id, i.product.title," +
+            " i.product.price,i.product.stock, i.quantity)" +
             " from ShoppingCart i where i.user.id = :userId")
     List<CartWrapper> findAllInShoppingCart(@Param("userId") Long userId);
 

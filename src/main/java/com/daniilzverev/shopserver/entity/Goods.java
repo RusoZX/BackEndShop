@@ -18,7 +18,7 @@ public class Goods {
     @Column(name="id")
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name="orderId")
     private Order order;
 

@@ -18,7 +18,7 @@ public class ShoppingCart {
     @Column(name="id")
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name="userId")
     private User user;
 

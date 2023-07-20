@@ -47,6 +47,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                     if(optProduct.isPresent()){
                         ShoppingCart item= shoppingCartDao.findByProductAndUser(optProduct.get().getId(),user.getId());
                         if(Objects.isNull(item)){
+                            item= new ShoppingCart();
                             item.setProduct(optProduct.get());
                             item.setUser(user);
                             item.setQuantity(Integer.parseInt(requestMap.get("quantity")));
@@ -72,7 +73,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public ResponseEntity<String> removeOfCart(String id) {
         if(checkRemoveFromCartMap(id))
             try{
-                log.info("User "+jwtFilter.getCurrentUser()+" Trying to remove product to shopping cart:"+id);
+                log.info("User "+jwtFilter.getCurrentUser()+" Trying to remove product of shopping cart:"+id);
                 User user = userDao.findByEmail(jwtFilter.getCurrentUser());
                 if(!Objects.isNull(user)){
                     Optional<Product> optProduct = productDao.findById(Long.parseLong(id));

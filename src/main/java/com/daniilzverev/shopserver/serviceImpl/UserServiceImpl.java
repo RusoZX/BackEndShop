@@ -327,7 +327,10 @@ public class UserServiceImpl implements UserService {
             User user = userDao.findByEmail(jwtUtil.extractUserName(token));
             if (!Objects.isNull(user)) {
                 if (jwtUtil.extractPwd(token).equals(user.getPwd())) {
-                    return Utils.getResponseEntity(Constants.CHECKED, HttpStatus.OK);
+                    if(user.getRole().equals("employee"))
+                        return Utils.getResponseEntity(Constants.CHECKED_EMPLOYEE, HttpStatus.OK);
+                    else
+                        return Utils.getResponseEntity(Constants.CHECKED_CLIENT, HttpStatus.OK);
                 } else
                     return Utils.getResponseEntity(Constants.BAD_CREDENTIALS, HttpStatus.BAD_REQUEST);
             } else

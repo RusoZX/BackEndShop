@@ -6,6 +6,8 @@ import com.daniilzverev.shopserver.dao.*;
 import com.daniilzverev.shopserver.entity.*;
 import com.daniilzverev.shopserver.service.OrderService;
 import com.daniilzverev.shopserver.utils.Utils;
+import com.daniilzverev.shopserver.wrapper.FullOrderForClientWrapper;
+import com.daniilzverev.shopserver.wrapper.GoodsWrapper;
 import com.daniilzverev.shopserver.wrapper.OrderForClientWrapper;
 import com.daniilzverev.shopserver.wrapper.OrderForEmployeeWrapper;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -50,22 +52,35 @@ public class OrderServiceImpl implements OrderService {
                         Order order = new Order();
                         if (requestMap.get("deliveryMethod").equals("delivery")) {
                             Optional<Address> optAddress = addressDao.findById(Long.parseLong(requestMap.get("addressId")));
-                            if(optAddress.isPresent())
+                            if(optAddress.isPresent()) {
                                 order.setAddress(optAddress.get());
+                                order.setUser(user);
+                                order.setDeliveryMethod(requestMap.get("deliveryMethod"));
+                                order.setPaymentMethod(requestMap.get("paymentMethod"));
+                                order.setPaymentStatus(false);
+                                order.setOrderStatus("pending");
+                                orderDao.save(order);
+                                for(Goods item :goods){
+                                    item.setOrder(order);
+                                    Optional<Product> optProd= productDao.findById(item.getProduct().getId());
+                                    if(optProd.isPresent()){
+                                        Product product = optProd.get();
+                                        if(item.getQuantity()<=product.getStock()&&item.getQuantity()>0){
+                                            product.setStock(product.getStock()-item.getQuantity());
+                                            productDao.save(product);
+                                        }else
+                                            return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+                                        goodsDao.save(item);
+                                    }else
+                                        return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+
+                                }
+                                return Utils.getResponseEntity(Constants.ORDER_CREATED, HttpStatus.OK);
+                            }
                             else
                                 return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
                         }
-                        order.setUser(user);
-                        order.setDeliveryMethod(requestMap.get("deliveryMethod"));
-                        order.setPaymentMethod(requestMap.get("paymentMethod"));
-                        order.setPaymentStatus(false);
-                        order.setOrderStatus("pending");
-                        orderDao.save(order);
-                        for(Goods item :goods){
-                            item.setOrder(order);
-                            goodsDao.save(item);
-                        }
-                        return Utils.getResponseEntity(Constants.ORDER_CREATED, HttpStatus.OK);
+
                     }else
                         return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
                 }
@@ -78,7 +93,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public ResponseEntity<String> getOrder(String orderId) {
+    public ResponseEntity<FullOrderForClientWrapper> getOrder(String orderId) {
         try{
             if(checkOrderId(orderId)){
                 log.info("User " + jwtFilter.getCurrentUser() + " Trying to get order: "+orderId);
@@ -87,18 +102,19 @@ public class OrderServiceImpl implements OrderService {
                     Optional<Order> order = orderDao.findById(Long.parseLong(orderId));
                     if(order.isPresent()){
                         if(user.equals(order.get().getUser())){
-                            return new ResponseEntity<>(createJsonResponseForOrder(order.get()), HttpStatus.OK);
+                            return new ResponseEntity<FullOrderForClientWrapper>
+                                    (orderDao.findFullByOrderId(Long.parseLong(orderId)), HttpStatus.OK);
                         }else
-                            return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+                            return new ResponseEntity<FullOrderForClientWrapper>(new FullOrderForClientWrapper(), HttpStatus.BAD_REQUEST);
                     }else
-                        return  Utils.getResponseEntity(Constants.ORDER_DONT_EXIST, HttpStatus.NOT_FOUND);
+                        return new ResponseEntity<FullOrderForClientWrapper>(new FullOrderForClientWrapper(), HttpStatus.NOT_FOUND);
                 }
             } else
-                return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<FullOrderForClientWrapper>(new FullOrderForClientWrapper(), HttpStatus.BAD_REQUEST);
         }catch (Exception ex){
             log.error(ex.getLocalizedMessage());
         }
-        return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<FullOrderForClientWrapper>(new FullOrderForClientWrapper(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -167,6 +183,27 @@ public class OrderServiceImpl implements OrderService {
         }
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
 
+    }
+
+    @Override
+    public ResponseEntity<List<GoodsWrapper>> getAllGoods(String orderId) {
+        try{
+            if(checkOrderId(orderId)){
+                log.info("User " + jwtFilter.getCurrentUser() + " Trying to get goods of the order: "+orderId);
+                User user = userDao.findByEmail(jwtFilter.getCurrentUser());
+                if(!Objects.isNull(user)){
+                    Optional<Order> optOrder = orderDao.findById(Long.parseLong(orderId));
+                    if(optOrder.isPresent()){
+                        return new ResponseEntity<List<GoodsWrapper>>
+                                (goodsDao.findAllGoods(optOrder.get().getId()), HttpStatus.OK);
+                    }else
+                        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
+                }
+            }
+        }catch (Exception ex){
+            log.error(ex.getLocalizedMessage());
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private boolean checkOrderId(String orderId){

@@ -29,8 +29,8 @@ class OrderDaoTest {
     @Test
     void findAllByUserId() {
         List<OrderForClientWrapper> expected= new ArrayList<>();
-
-        expected.add( new OrderForClientWrapper(-1L,false, "pending"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
+        expected.add( new OrderForClientWrapper(-1L,false, "pending", LocalDate.parse("2023-06-07",formatter)));
 
         assertEquals(expected, orderDao.findAllByUserId(-1L));
     }

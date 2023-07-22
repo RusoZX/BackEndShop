@@ -4,6 +4,8 @@ import com.daniilzverev.shopserver.constants.Constants;
 import com.daniilzverev.shopserver.rest.OrderRest;
 import com.daniilzverev.shopserver.serviceImpl.OrderServiceImpl;
 import com.daniilzverev.shopserver.utils.Utils;
+import com.daniilzverev.shopserver.wrapper.FullOrderForClientWrapper;
+import com.daniilzverev.shopserver.wrapper.GoodsWrapper;
 import com.daniilzverev.shopserver.wrapper.OrderForClientWrapper;
 import com.daniilzverev.shopserver.wrapper.OrderForEmployeeWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +34,13 @@ public class OrderRestImpl implements OrderRest {
     }
 
     @Override
-    public ResponseEntity<String> getOrder(String orderId) {
+    public ResponseEntity<FullOrderForClientWrapper> getOrder(String orderId) {
         try{
             return orderService.getOrder(orderId);
         }catch(Exception ex){
             ex.printStackTrace();
         }
-        return new ResponseEntity<String>("", HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<FullOrderForClientWrapper>(new FullOrderForClientWrapper(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -69,5 +71,15 @@ public class OrderRestImpl implements OrderRest {
             ex.printStackTrace();
         }
         return new ResponseEntity<List<OrderForEmployeeWrapper>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<GoodsWrapper>> getGoods(String orderId) {
+        try{
+            return orderService.getAllGoods(orderId);
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return new ResponseEntity<List<GoodsWrapper>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

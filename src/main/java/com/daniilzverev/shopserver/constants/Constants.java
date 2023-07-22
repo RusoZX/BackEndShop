@@ -23,7 +23,8 @@ public class Constants {
     public static final String ORDER_CREATED = "Order Successfully created";
     public static final String USER_DONT_EXIST= "User doesnt exist";
     public static final String EXPIRED= "Token expired";
-    public static final String CHECKED= "Token checked";
+    public static final String CHECKED_EMPLOYEE= "Employee checked";
+    public static final String CHECKED_CLIENT= "Client checked";
 
     public static final String SECRET = "javaschool2023";
 }

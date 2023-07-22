@@ -101,11 +101,11 @@ public class OrderServiceImpl implements OrderService {
                 if (!Objects.isNull(user)){
                     Optional<Order> order = orderDao.findById(Long.parseLong(orderId));
                     if(order.isPresent()){
-                        if(user.equals(order.get().getUser())){
+                        if(user.equals(order.get().getUser())||user.getRole().equals("employee")){
                             return new ResponseEntity<FullOrderForClientWrapper>
                                     (orderDao.findFullByOrderId(Long.parseLong(orderId)), HttpStatus.OK);
                         }else
-                            return new ResponseEntity<FullOrderForClientWrapper>(new FullOrderForClientWrapper(), HttpStatus.BAD_REQUEST);
+                            return new ResponseEntity<FullOrderForClientWrapper>(new FullOrderForClientWrapper(), HttpStatus.UNAUTHORIZED);
                     }else
                         return new ResponseEntity<FullOrderForClientWrapper>(new FullOrderForClientWrapper(), HttpStatus.NOT_FOUND);
                 }
@@ -162,9 +162,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public ResponseEntity<List<OrderForEmployeeWrapper>> getAllOrdersEmployee(String mode) {
+    public ResponseEntity<List<OrderForEmployeeWrapper>> getAllOrdersEmployee(String mode,String search) {
         try{
-            log.info("User " + jwtFilter.getCurrentUser() + " Trying to get orders: ");
+            log.info("User " + jwtFilter.getCurrentUser() + " Trying to get orders: "+mode);
             User user = userDao.findByEmail(jwtFilter.getCurrentUser());
             if (!Objects.isNull(user)&&user.getRole().equals("employee")){
                 if(Objects.isNull(mode))
@@ -173,6 +173,11 @@ public class OrderServiceImpl implements OrderService {
                     return new ResponseEntity<>(orderDao.findAllTimeInterval(giveWeekAgo(), LocalDate.now()), HttpStatus.OK);
                 if(mode.equals("month"))
                     return new ResponseEntity<>(orderDao.findAllTimeInterval(giveMonthAgo(), LocalDate.now()), HttpStatus.OK);
+                if(mode.equals("pending"))
+                    return new ResponseEntity<>(orderDao.findAllPending(), HttpStatus.OK);
+                if(mode.equals("byUser"))
+                    return new ResponseEntity<>(orderDao.findAllByUser(search), HttpStatus.OK);
+
 
                 //If it got here it means that there was a bad format
                 return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);

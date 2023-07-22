@@ -19,11 +19,13 @@ public interface OrderRest {
     ResponseEntity<FullOrderForClientWrapper> getOrder(@PathVariable String orderId);
     @GetMapping(path="/getAll")
     ResponseEntity<List<OrderForClientWrapper>> getAllOrders();
+
     @PostMapping(path="/updateStatus")
     ResponseEntity<String> updateStatus(@RequestBody Map<String, String> requestMap);
 
     @GetMapping(path="/getAllOrders")
-    ResponseEntity<List<OrderForEmployeeWrapper>> getOrdersForEmployee(@RequestParam(value = "search", required = false) String mode);
+    ResponseEntity<List<OrderForEmployeeWrapper>>
+    getOrdersForEmployee(@RequestParam(value = "mode", required = false) String mode,@RequestParam(value = "search", required = false) String search);
 
     @GetMapping(path="/getGoods{orderId}")
     ResponseEntity<List<GoodsWrapper>> getGoods(@PathVariable String orderId);

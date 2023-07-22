@@ -64,9 +64,9 @@ public class OrderRestImpl implements OrderRest {
     }
 
     @Override
-    public ResponseEntity<List<OrderForEmployeeWrapper>> getOrdersForEmployee(String mode) {
+    public ResponseEntity<List<OrderForEmployeeWrapper>> getOrdersForEmployee(String mode,String search) {
         try{
-            return orderService.getAllOrdersEmployee(mode);
+            return orderService.getAllOrdersEmployee(mode, search);
         }catch(Exception ex){
             ex.printStackTrace();
         }

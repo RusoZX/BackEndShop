@@ -14,6 +14,6 @@ public interface OrderService {
     ResponseEntity<FullOrderForClientWrapper> getOrder(String orderId);
     ResponseEntity<List<OrderForClientWrapper>> getAllOrders();
     ResponseEntity<String> updateStatus(Map<String, String> requestMap);
-    ResponseEntity<List<OrderForEmployeeWrapper>> getAllOrdersEmployee(String mode);
+    ResponseEntity<List<OrderForEmployeeWrapper>> getAllOrdersEmployee(String mode,String search);
     ResponseEntity<List<GoodsWrapper>> getAllGoods(String orderId);
 }

@@ -37,8 +37,9 @@ class OrderDaoTest {
     @Test
     void findAllNone() {
         List<OrderForEmployeeWrapper> expected= new ArrayList<>();
-        expected.add( new OrderForEmployeeWrapper(-1L,"example1@example.com",false, "pending",20D));
-        expected.add( new OrderForEmployeeWrapper(-2L,"example@example.com",true, "paid",10D));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
+        expected.add( new OrderForEmployeeWrapper(-1L,"example1@example.com",false, "pending",LocalDate.parse("2023-06-07",formatter),20D));
+        expected.add( new OrderForEmployeeWrapper(-2L,"example@example.com",true, "paid",LocalDate.parse("2023-06-07",formatter),10D));
 
 
         assertEquals(expected, orderDao.findAllNone());
@@ -46,9 +47,10 @@ class OrderDaoTest {
     @Test
     void findAllWeek() {
         List<OrderForEmployeeWrapper> expected= new ArrayList<>();
-        expected.add( new OrderForEmployeeWrapper(-1L,"example1@example.com",false, "pending",20D));
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
+        expected.add( new OrderForEmployeeWrapper(-1L,"example1@example.com",false, "pending",LocalDate.parse("2023-06-07",formatter),20D));
+
+
 
         assertEquals(expected, orderDao.findAllTimeInterval(LocalDate.parse("2023-07-01",formatter),
                 LocalDate.parse("2023-07-07",formatter)));
@@ -56,10 +58,10 @@ class OrderDaoTest {
     @Test
     void findAllMonth() {
         List<OrderForEmployeeWrapper> expected= new ArrayList<>();
-        expected.add( new OrderForEmployeeWrapper(-1L,"example1@example.com",false, "pending",20D));
-        expected.add( new OrderForEmployeeWrapper(-2L,"example@example.com",true, "paid",10D));
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);
+        expected.add( new OrderForEmployeeWrapper(-1L,"example1@example.com",false, "pending",LocalDate.parse("2023-06-07",formatter),20D));
+        expected.add( new OrderForEmployeeWrapper(-2L,"example@example.com",true, "paid",LocalDate.parse("2023-06-07",formatter),10D));
+
 
         assertEquals(expected, orderDao.findAllTimeInterval(LocalDate.parse("2023-06-07",formatter),
                 LocalDate.parse("2023-07-07",formatter)));

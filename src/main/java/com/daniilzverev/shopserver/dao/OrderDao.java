@@ -22,13 +22,22 @@ public interface OrderDao extends JpaRepository<Order, Long> {
     FullOrderForClientWrapper findFullByOrderId(@Param("orderId") Long orderId);
 
     @Query("select new com.daniilzverev.shopserver.wrapper.OrderForEmployeeWrapper(o.id, o.user.email, o.paymentStatus," +
-            " o.orderStatus,(SELECT SUM(p.price * g.quantity) FROM Goods g  JOIN g.order ordr JOIN g.product p WHERE ordr.id = o.id))" +
-            " from Order o order by createdDate Desc")
+            " o.orderStatus, o.createdDate,(SELECT SUM(p.price * g.quantity) FROM Goods g  JOIN g.order ordr JOIN g.product p WHERE ordr.id = o.id))" +
+            " from Order o order by o.createdDate Desc")
     List<OrderForEmployeeWrapper> findAllNone();
 
     @Query("select new com.daniilzverev.shopserver.wrapper.OrderForEmployeeWrapper(o.id, o.user.email, o.paymentStatus," +
-            " o.orderStatus,(SELECT SUM(p.price * g.quantity) FROM Goods g  JOIN g.order ordr JOIN g.product p WHERE ordr.id = o.id))" +
-            " from Order o where o.createdDate BETWEEN :start And :end order by createdDate Desc")
+            " o.orderStatus, o.createdDate,(SELECT SUM(p.price * g.quantity) FROM Goods g  JOIN g.order ordr JOIN g.product p WHERE ordr.id = o.id))" +
+            " from Order o where o.orderStatus = 'pending'")
+    List<OrderForEmployeeWrapper> findAllPending();
+    @Query("select new com.daniilzverev.shopserver.wrapper.OrderForEmployeeWrapper(o.id, o.user.email, o.paymentStatus," +
+            " o.orderStatus, o.createdDate,(SELECT SUM(p.price * g.quantity) FROM Goods g  JOIN g.order ordr JOIN g.product p WHERE ordr.id = o.id))" +
+            " from Order o where o.user.email like %:user%")
+    List<OrderForEmployeeWrapper> findAllByUser(@Param("user") String user);
+
+    @Query("select new com.daniilzverev.shopserver.wrapper.OrderForEmployeeWrapper(o.id, o.user.email, o.paymentStatus," +
+            " o.orderStatus, o.createdDate,(SELECT SUM(p.price * g.quantity) FROM Goods g  JOIN g.order ordr JOIN g.product p WHERE ordr.id = o.id))" +
+            " from Order o where o.createdDate BETWEEN :start And :end order by o.createdDate Desc")
     List<OrderForEmployeeWrapper> findAllTimeInterval(@Param("start") LocalDate start, @Param("end") LocalDate end );
 
 

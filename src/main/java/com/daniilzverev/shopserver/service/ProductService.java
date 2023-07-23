@@ -15,5 +15,4 @@ public interface ProductService {
     ResponseEntity<Product> getProduct(Long productId);
     ResponseEntity<List<ProductWrapper>> getProducts(String method, String limit, String search);
     ResponseEntity<List<String>> getCategories();
-    ResponseEntity<String> changeCategories(Map<String, String> requestMap);
 }

@@ -214,40 +214,6 @@ public class ProductServiceImpl implements ProductService {
                 return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-    @Override
-    public ResponseEntity<String> changeCategories(Map<String, String> requestMap) {
-        try {
-            if(checkChangeCategoriesMap(requestMap)) {
-                log.info("User " + jwtFilter.getCurrentUser() + " trying to change products categories:" + requestMap);
-                User user = userDao.findByEmail(jwtFilter.getCurrentUser());
-                if (!Objects.isNull(user) && user.getRole().equals("employee")) {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    JsonNode jsonNode = objectMapper.readTree(requestMap.get("productList"));
-                    for (JsonNode element : jsonNode) {
-                        Long id = Long.parseLong(element.get("id").textValue());
-                        Optional<Product> optProduct= productDao.findById(Long.parseLong(element.get("id").textValue()));
-                        if(optProduct.isPresent()){
-                            Product product = optProduct.get();
-                            product.setCategory(requestMap.get("newCategory"));
-                            productDao.save(product);
-                        }else
-                            return Utils.getResponseEntity(Constants.PRODUCT_DONT_EXIST, HttpStatus.NOT_FOUND);
-                    }
-                    return Utils.getResponseEntity(Constants.UPDATED, HttpStatus.OK);
-                } else
-                    return Utils.getResponseEntity(Constants.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
-            }else
-                return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
-        }catch (NumberFormatException e) {
-            log.error("Bad Number format in product Id "+e.getLocalizedMessage());
-            return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
-        }
-        catch (Exception ex){
-            log.error(ex.getLocalizedMessage());
-        }
-        return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
 
     private boolean checkGetProductsRequest(String method, String limit){
         if(!Objects.isNull(method)&&!Objects.isNull(limit))

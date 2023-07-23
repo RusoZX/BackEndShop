@@ -24,6 +24,4 @@ public interface ProductRest {
                                                      @RequestParam(value = "search", required = false) String search);
     @GetMapping(path="/getCategories")
     ResponseEntity<List<String>> getCategories();
-    @PostMapping(path="/changeCategories")
-    ResponseEntity<String> changeCategories(@RequestBody Map<String, String> requestMap);
 }

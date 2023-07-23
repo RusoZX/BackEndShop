@@ -105,13 +105,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<String> removeProduct(Map<String, String> requestMap) {
+    public ResponseEntity<String> removeProduct(String productId) {
         try {
-            log.info("User " + jwtFilter.getCurrentUser() + " trying to remove Product:" + requestMap);
+            log.info("User " + jwtFilter.getCurrentUser() + " trying to remove Product:" + productId);
             User user = userDao.findByEmail(jwtFilter.getCurrentUser());
             if(!Objects.isNull(user)&&user.getRole().equals("employee"))
-                if(checkRemoveProductMap(requestMap)){
-                    Optional<Product> optProduct = productDao.findById(Long.parseLong(requestMap.get("productId")));
+                if(checkRemoveProductMap(productId)){
+                    Optional<Product> optProduct = productDao.findById(Long.parseLong(productId));
                     if(optProduct.isPresent()){
                         productDao.delete(optProduct.get());
                         return Utils.getResponseEntity(Constants.REMOVED, HttpStatus.OK);
@@ -299,10 +299,10 @@ public class ProductServiceImpl implements ProductService {
         }
         return false;
     }
-    private boolean checkRemoveProductMap(Map<String, String> requestMap){
-        if(requestMap.containsKey("productId")){
+    private boolean checkRemoveProductMap(String productId){
+        if(!productId.isEmpty()){
             try{
-                Long.parseLong(requestMap.get("productId"));
+                Long.parseLong(productId);
                 return true;
             }catch (NumberFormatException e){
                 log.error("Bad number format");

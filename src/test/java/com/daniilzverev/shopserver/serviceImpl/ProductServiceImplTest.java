@@ -213,15 +213,13 @@ class ProductServiceImplTest {
 
     @Test
     void removeProductSuccess() {
-        Map<String,String> requestMap= new HashMap<>();
-        requestMap.put("productId","-3");
 
         when(jwtFilter.getCurrentUser()).thenReturn("employee@example.com");
 
         when(userDao.findByEmail("employee@example.com")).thenReturn(giveTestUser());
 
         when(productDao.findById(-3L)).thenReturn(Optional.of(giveTestProduct()));
-        ResponseEntity<String> result = underTest.removeProduct(requestMap);
+        ResponseEntity<String> result = underTest.removeProduct("-3");
 
         assertEquals(Utils.getResponseEntity(Constants.REMOVED, HttpStatus.OK), result);
         verify(productDao).delete(giveTestProduct());
@@ -229,8 +227,6 @@ class ProductServiceImplTest {
     }
     @Test
     void deleteProductWithoutEmployee() {
-        Map<String,String> requestMap= new HashMap<>();
-        requestMap.put("productId","-1");
 
         when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
 
@@ -241,21 +237,19 @@ class ProductServiceImplTest {
 
         when(userDao.findByEmail("example1@example.com")).thenReturn(user);
 
-        ResponseEntity<String> result = underTest.removeProduct(requestMap);
+        ResponseEntity<String> result = underTest.removeProduct("-1");
 
         assertEquals(Utils.getResponseEntity(Constants.UNAUTHORIZED, HttpStatus.UNAUTHORIZED), result);
 
     }
     @Test
     void removeProductBadFormat() {
-        Map<String,String> requestMap= new HashMap<>();
-
 
         when(jwtFilter.getCurrentUser()).thenReturn("employee@example.com");
 
         when(userDao.findByEmail("employee@example.com")).thenReturn(giveTestUser());
 
-        ResponseEntity<String> result = underTest.removeProduct(requestMap);
+        ResponseEntity<String> result = underTest.removeProduct("");
 
         assertEquals(Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST), result);
 

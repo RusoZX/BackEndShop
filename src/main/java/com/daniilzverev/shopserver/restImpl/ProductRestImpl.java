@@ -41,9 +41,9 @@ public class ProductRestImpl implements ProductRest {
     }
 
     @Override
-    public ResponseEntity<String> removeProduct(Map<String, String> requestMap) {
+    public ResponseEntity<String> removeProduct(String productId) {
         try{
-            return productService.removeProduct(requestMap);
+            return productService.removeProduct(productId);
         }catch(Exception ex){
             ex.printStackTrace();
         }

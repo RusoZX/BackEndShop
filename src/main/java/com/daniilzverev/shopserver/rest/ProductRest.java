@@ -14,8 +14,8 @@ public interface ProductRest {
     ResponseEntity<String> addProduct(@RequestBody Map<String, String> requestMap);
     @PostMapping(path="/edit")
     ResponseEntity<String> editProduct(@RequestBody Map<String, String> requestMap);
-    @DeleteMapping(path="/remove")
-    ResponseEntity<String> removeProduct(@RequestBody Map <String,String> requestMap);
+    @DeleteMapping(path="/remove{productId}")
+    ResponseEntity<String> removeProduct(@PathVariable String productId);
     @GetMapping(path="/{productId}")
     ResponseEntity<Product> getProduct(@PathVariable Long productId);
     @GetMapping(path="/getBy{method}")

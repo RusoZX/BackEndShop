@@ -21,6 +21,9 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @Slf4j
@@ -135,8 +138,12 @@ public class ProductServiceImpl implements ProductService {
             log.info("Giving product info of id "+productId);
             if(!Objects.isNull(productId)){
                 Optional<Product> optProduct = productDao.findById(productId);
-                if(optProduct.isPresent())
-                    return new ResponseEntity<Product>(optProduct.get(), HttpStatus.OK);
+                if(optProduct.isPresent()){
+                    Product product= optProduct.get();
+                    product.setImageData(getImage(product.getTitle()+product.getId()));
+                    product.setType(getType(product.getTitle()+product.getId()));
+                    return new ResponseEntity<Product>(product, HttpStatus.OK);
+                }
                 else
                     return new ResponseEntity<Product>(new Product(), HttpStatus.NOT_FOUND);
             }else
@@ -155,44 +162,44 @@ public class ProductServiceImpl implements ProductService {
                 Pageable requestLimit = PageRequest.of(0,Integer.parseInt(limit));
                 switch (method){
                     case "None":
-                        return new ResponseEntity<List<ProductWrapper>>(
-                                productDao.findAllByNone(requestLimit),
+                        return new ResponseEntity<List<ProductWrapper>>(addImages(
+                                productDao.findAllByNone(requestLimit)),
                                 HttpStatus.OK);
                     case "Title":
                         if(!Objects.isNull(search))
-                            return new ResponseEntity<List<ProductWrapper>>(
-                                    productDao.findAllByTitle(search, requestLimit),
+                            return new ResponseEntity<List<ProductWrapper>>(addImages(
+                                    productDao.findAllByTitle(search, requestLimit)),
                                     HttpStatus.OK);
                         break;
                     case "Category":
                         if(!Objects.isNull(search))
-                            return new ResponseEntity<List<ProductWrapper>>(
-                                    productDao.findAllByCategory(search, requestLimit),
+                            return new ResponseEntity<List<ProductWrapper>>(addImages(
+                                    productDao.findAllByCategory(search, requestLimit)),
                                     HttpStatus.OK);
                         break;
                     case "PriceAsc":
-                        return new ResponseEntity<List<ProductWrapper>>(
-                                productDao.findAllByPriceAsc(requestLimit),
+                        return new ResponseEntity<List<ProductWrapper>>(addImages(
+                                productDao.findAllByPriceAsc(requestLimit)),
                                 HttpStatus.OK);
                     case "PriceDesc":
-                        return new ResponseEntity<List<ProductWrapper>>(
-                                productDao.findAllByPriceDesc(requestLimit),
+                        return new ResponseEntity<List<ProductWrapper>>(addImages(
+                                productDao.findAllByPriceDesc(requestLimit)),
                                 HttpStatus.OK);
                     case "Brand":
                         if(!Objects.isNull(search))
-                            return new ResponseEntity<List<ProductWrapper>>(
-                                    productDao.findAllByBrand(search, requestLimit),
+                            return new ResponseEntity<List<ProductWrapper>>(addImages(
+                                    productDao.findAllByBrand(search, requestLimit)),
                                     HttpStatus.OK);
                         break;
                     case "Color":
                         if(!Objects.isNull(search))
-                            return new ResponseEntity<List<ProductWrapper>>(
-                                    productDao.findAllByColor(search, requestLimit),
+                            return new ResponseEntity<List<ProductWrapper>>(addImages(
+                                    productDao.findAllByColor(search, requestLimit)),
                                     HttpStatus.OK);
                         break;
                     case "BestSellers":
-                        return new ResponseEntity<List<ProductWrapper>>(
-                                productDao.findAllByBestSellers( requestLimit),
+                        return new ResponseEntity<List<ProductWrapper>>(addImages(
+                                productDao.findAllByBestSellers(requestLimit)),
                                 HttpStatus.OK);
                 }
 
@@ -225,10 +232,8 @@ public class ProductServiceImpl implements ProductService {
                     Optional<Product> optProduct = productDao.findById(Long.parseLong(productId));
                     if(optProduct.isPresent()){
                         Product product = optProduct.get();
-                        product.setImagePath(
-                                createImage(product.getTitle().concat(product.getId().toString()), img));
-                        productDao.save(product);
-                        return Utils.getResponseEntity(Constants.UPDATED, HttpStatus.OK);
+                        if(!createImage(product.getTitle().concat(product.getId().toString()), img).isEmpty())
+                            return Utils.getResponseEntity(Constants.UPDATED, HttpStatus.OK);
                     }else
                         return Utils.getResponseEntity(Constants.PRODUCT_DONT_EXIST, HttpStatus.BAD_REQUEST);
                 }else
@@ -317,5 +322,35 @@ public class ProductServiceImpl implements ProductService {
         }
         img.transferTo(newFile);
         return newFile.getPath();
+    }
+    private byte[] getImage(String name) throws Exception{
+        File[] files = new File("C:\\images\\").listFiles((dir, fileName) -> fileName.startsWith(name + ".") );
+        if(files.length!=0) {
+            Path path = Paths.get(files[0].getAbsolutePath());
+            return Files.readAllBytes(path);
+        }
+        return null;
+
+
+    }
+    private String getType(String name){
+        File[] files = new File("C:\\images\\").listFiles((dir, fileName) -> fileName.startsWith(name + ".") );
+        if(files.length!=0)
+            return files[0].getName().substring(files[0].getName().lastIndexOf(".") + 1);
+
+        else
+            return null;
+
+    }
+    private List<ProductWrapper> addImages(List<ProductWrapper> products) throws Exception{
+
+        for(ProductWrapper product: products){
+            byte[] img = getImage(product.getTitle()+product.getId());
+            if(!Objects.isNull(img)) {
+                product.setImageData(img);
+                product.setType(getType(product.getTitle() + product.getId()));
+            }
+        }
+        return products;
     }
 }

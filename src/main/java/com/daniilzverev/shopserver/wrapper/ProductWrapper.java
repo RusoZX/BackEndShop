@@ -17,6 +17,9 @@ public class ProductWrapper {
 
     private Integer stock;
 
+    private byte[] imageData;
+    private String type;
+
     public ProductWrapper(Long id, String title, Float price, Integer stock) {
         this.id = id;
         this.title = title;

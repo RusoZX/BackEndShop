@@ -49,4 +49,7 @@ public class Product implements Serializable {
     @Column(name="totalSold")
     private Integer totalSold;
 
+    @Column(name="imagePath")
+    private String imagePath;
+
 }

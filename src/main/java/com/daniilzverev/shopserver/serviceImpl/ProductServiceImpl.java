@@ -4,15 +4,11 @@ import com.daniilzverev.shopserver.JWT.JwtFilter;
 import com.daniilzverev.shopserver.constants.Constants;
 import com.daniilzverev.shopserver.dao.ProductDao;
 import com.daniilzverev.shopserver.dao.UserDao;
-import com.daniilzverev.shopserver.entity.Goods;
 import com.daniilzverev.shopserver.entity.Product;
 import com.daniilzverev.shopserver.entity.User;
 import com.daniilzverev.shopserver.service.ProductService;
 import com.daniilzverev.shopserver.utils.Utils;
 import com.daniilzverev.shopserver.wrapper.ProductWrapper;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -20,12 +16,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Value;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 @Slf4j
 @Service
 public class ProductServiceImpl implements ProductService {
+
     @Autowired
     UserDao userDao;
     @Autowired
@@ -214,6 +215,33 @@ public class ProductServiceImpl implements ProductService {
                 return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+    @Override
+    public ResponseEntity<String> updateImg(String productId, MultipartFile img) {
+        try {
+            log.info("User " + jwtFilter.getCurrentUser() + " trying to add image to Product:" + productId);
+            User user = userDao.findByEmail(jwtFilter.getCurrentUser());
+            if(!Objects.isNull(user)&&user.getRole().equals("employee"))
+                if(checkRemoveProductMap(productId)){
+                    Optional<Product> optProduct = productDao.findById(Long.parseLong(productId));
+                    if(optProduct.isPresent()){
+                        Product product = optProduct.get();
+                        product.setImagePath(
+                                createImage(product.getTitle().concat(product.getId().toString()), img));
+                        productDao.save(product);
+                        return Utils.getResponseEntity(Constants.UPDATED, HttpStatus.OK);
+                    }else
+                        return Utils.getResponseEntity(Constants.PRODUCT_DONT_EXIST, HttpStatus.BAD_REQUEST);
+                }else
+                    return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+            else
+                return Utils.getResponseEntity(Constants.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+
+        }catch (Exception ex){
+            log.error(ex.getLocalizedMessage());
+        }
+        return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 
     private boolean checkGetProductsRequest(String method, String limit){
         if(!Objects.isNull(method)&&!Objects.isNull(limit))
@@ -276,7 +304,18 @@ public class ProductServiceImpl implements ProductService {
         }
         return false;
     }
-    private boolean checkChangeCategoriesMap(Map<String, String> requestMap){
-        return requestMap.containsKey("productList")&&requestMap.containsKey("newCategory");
+    private String createImage(String name, MultipartFile img) throws IOException{
+
+        String contentType = img.getContentType();
+        String fileExtension = contentType.substring(contentType.lastIndexOf("/") + 1);
+        File newFile= new File("C:\\images\\"+name + "." + fileExtension);
+        File[] files = newFile.getParentFile().listFiles((dir, fileName) -> fileName.startsWith(name + ".") && !fileName.equals(newFile.getName()));
+        if (files != null) {
+            for (File file : files) {
+                file.delete();
+            }
+        }
+        img.transferTo(newFile);
+        return newFile.getPath();
     }
 }

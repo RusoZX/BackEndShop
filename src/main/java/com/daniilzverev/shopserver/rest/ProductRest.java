@@ -4,6 +4,7 @@ import com.daniilzverev.shopserver.entity.Product;
 import com.daniilzverev.shopserver.wrapper.ProductWrapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -24,4 +25,6 @@ public interface ProductRest {
                                                      @RequestParam(value = "search", required = false) String search);
     @GetMapping(path="/getCategories")
     ResponseEntity<List<String>> getCategories();
+    @PostMapping(path="/updateImg{productId}")
+    ResponseEntity<String> updateImg(@PathVariable String productId ,@RequestParam("file") MultipartFile img);
 }

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +79,16 @@ public class ProductRestImpl implements ProductRest {
             ex.printStackTrace();
         }
         return new ResponseEntity<List<String>>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> updateImg(String productId, MultipartFile img) {
+        try{
+            return productService.updateImg(productId, img);
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return Utils.getResponseEntity(Constants.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

@@ -301,56 +301,7 @@ class ProductServiceImplTest {
 
         assertEquals(HttpStatus.BAD_REQUEST,result.getStatusCode());
     }
-    @Test
-    void changeCategories() {
-        Map<String,String> requestMap= new HashMap<>();
-        requestMap.put("productList","[{\"id\":\"-15\"},{\"id\":\"-14\"}]");
-        requestMap.put("newCategory","newCategory");
 
-        when(jwtFilter.getCurrentUser()).thenReturn("employee@example.com");
-
-        when(userDao.findByEmail("employee@example.com")).thenReturn(giveTestUser());
-
-        when(productDao.findById(-15L)).thenReturn(Optional.of(giveTestProduct2()));
-        Product product = giveTestProduct2();
-        product.setId(-14L);
-        product.setPrice(-14F);
-        when(productDao.findById(-14L)).thenReturn(Optional.of(product));
-
-        ResponseEntity<String> result = underTest.changeCategories(requestMap);
-
-        assertEquals(Utils.getResponseEntity(Constants.UPDATED, HttpStatus.OK), result);
-        product = giveTestProduct2();
-        product.setCategory("newCategory");
-        verify(underTest.productDao).save(product);
-        product = giveTestProduct2();
-        product.setCategory("newCategory");
-        product.setId(-14L);
-        product.setPrice(-14F);
-        verify(underTest.productDao).save(product);
-    }
-    //Ask if it is worth to test get in here since you have to mock the productDAo
-    /*@Test
-    void findAllLimit10(){
-        List<ProductWrapper> expected = new ArrayList<>();
-
-        expected.add(new ProductWrapper(-15L,"title",15F,10));
-        expected.add(new ProductWrapper(-14L,"title",14F,10));
-        expected.add(new ProductWrapper(-13L,"title",13F,10));
-        expected.add(new ProductWrapper(-12L,"title",12F,10));
-        expected.add(new ProductWrapper(-11L,"title",11F,10));
-        expected.add(new ProductWrapper(-10L,"test4",10F,10));
-        expected.add(new ProductWrapper(-9L,"test3",9F,10));
-        expected.add(new ProductWrapper(-8L,"test3",8F,10));
-        expected.add(new ProductWrapper(-7L,"test3",7F,10));
-        expected.add(new ProductWrapper(-6L,"test3",6F,10));
-
-
-        ResponseEntity<List<ProductWrapper>> actualResponse = underTest.getProducts("None", "10",null);
-
-        assertEquals(expected, actualResponse.getBody());
-    }
-    */
 
     private User giveTestUser(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.TIME_FORMAT);

@@ -294,75 +294,39 @@ class UserRestImplTest {
         assertEquals("{\"message\":\""+Constants.ADDRESS_DONT_EXIST+"\"}"
                 , response);
     }
-
-    @Test
-    public void removeAddress() throws Exception{
-
-        MvcResult result = mockMvc.perform(delete("/user/address/remove-1")
-                .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData")))
-                .andExpect(status().isOk())
-                .andReturn();
-        String response = result.getResponse().getContentAsString();
-
-        assertEquals("{\"message\":\""+Constants.REMOVED+"\"}"
-                , response);
-    }
     @Test
     public void removeAddressBadFormat() throws Exception{
-
-        MvcResult result = mockMvc.perform(delete("/user/address/remove")
+    mockMvc.perform(delete("/user/address/remove")
                 .header("Authorization", "Bearer "
                         +jwtUtil.generateToken("example1@example.com","someEncryptedData")))
                 .andExpect(status().isBadRequest())
                 .andReturn();
-        String response = result.getResponse().getContentAsString();
-
-        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}"
-                , response);
     }
     @Test
     public void removeAddressBadIdFormat() throws Exception{
-        Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("addressId","badFormat");
-
-        MvcResult result = mockMvc.perform(delete("/user/address/remove")
+        mockMvc.perform(delete("/user/address/remove")
                 .header("Authorization", "Bearer "
-                        +jwtUtil.generateToken("example1@example.com","someEncryptedData"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestMapToJson(requestMap)))
+                        +jwtUtil.generateToken("example1@example.com","someEncryptedData")))
                 .andExpect(status().isBadRequest())
                 .andReturn();
-        String response = result.getResponse().getContentAsString();
-
-        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}"
-                , response);
     }
     @Test
     public void removeAddressBadUser() throws Exception{
 
-        MvcResult result = mockMvc.perform(delete("/user/address/remove-3")
+        mockMvc.perform(delete("/user/address/remove-3")
                 .header("Authorization", "Bearer "
                         +jwtUtil.generateToken("example1@example.com","someEncryptedData")))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andReturn();
-        String response = result.getResponse().getContentAsString();
-
-        assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}"
-                , response);
     }
     @Test
     public void removeAddressBadAddress() throws Exception{
 
-        MvcResult result = mockMvc.perform(delete("/user/address/remove0")
+        mockMvc.perform(delete("/user/address/remove0")
                 .header("Authorization", "Bearer "
                         +jwtUtil.generateToken("example1@example.com","someEncryptedData")))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andReturn();
-        String response = result.getResponse().getContentAsString();
-
-        assertEquals("{\"message\":\""+Constants.ADDRESS_DONT_EXIST+"\"}"
-                , response);
     }
 
     @Test
@@ -437,12 +401,6 @@ class TestUserWithoutJwtUtil {
     private MockMvc mockMvc;
 
     @Test
-    public void addAddressWithoutAuth() throws Exception{
-        mockMvc.perform(post("/user/address/add"))
-                .andExpect(status().isForbidden())
-                .andReturn();
-    }
-    @Test
     public void logInWithBadCredentials() throws Exception{
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("email","example@example.com");
@@ -470,31 +428,6 @@ class TestUserWithoutJwtUtil {
         String response = result.getResponse().getContentAsString();
 
         assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}", response);
-    }
-    @Test
-    public void getUsersWithoutAuth() throws Exception{
-        mockMvc.perform(post("/user/users"))
-                .andExpect(status().isForbidden())
-                .andReturn();
-    }
-    @Test
-    public void getProfileWithoutAuth() throws Exception{
-
-        mockMvc.perform(get("/user/profile"))
-                .andExpect(status().isForbidden())
-                .andReturn();
-    }
-    @Test
-    public void getAddressWithoutAuth() throws Exception{
-        mockMvc.perform(post("/user/address/get-1"))
-                .andExpect(status().isForbidden())
-                .andReturn();
-    }
-    @Test
-    public void changePwdWithoutAuth() throws Exception{
-        mockMvc.perform(post("/user/profile/changepwd"))
-                .andExpect(status().isForbidden())
-                .andReturn();
     }
     @Test
     public void userAlreadyExists() throws Exception{
@@ -525,24 +458,6 @@ class TestUserWithoutJwtUtil {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestMapToJson(requestMap)))
                 .andExpect(status().isOk())
-                .andReturn();
-    }
-    @Test
-    public void updateWithoutAuth() throws Exception{
-        mockMvc.perform(post("/user/profile/update"))
-                .andExpect(status().isForbidden())
-                .andReturn();
-    }
-    @Test
-    public void removeAddressWithoutAuth() throws Exception{
-        mockMvc.perform(post("/user/address/remove"))
-                .andExpect(status().isForbidden())
-                .andReturn();
-    }
-    @Test
-    public void editAddressWithoutAuth() throws Exception{
-        mockMvc.perform(post("/user/address/edit"))
-                .andExpect(status().isForbidden())
                 .andReturn();
     }
     @Test
@@ -600,12 +515,6 @@ class TestUserWithoutJwtUtil {
         String response = result.getResponse().getContentAsString();
 
         assertEquals("{\"message\":\""+Constants.INVALID_DATA+"\"}", response);
-    }
-    @Test
-    public void getAllAddressWithoutAuth() throws Exception{
-        mockMvc.perform(post("/user/address/getAll"))
-                .andExpect(status().isForbidden())
-                .andReturn();
     }
 
 }

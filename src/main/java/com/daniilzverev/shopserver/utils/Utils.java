@@ -3,6 +3,7 @@ package com.daniilzverev.shopserver.utils;
 import com.daniilzverev.shopserver.constants.Constants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.security.SecureRandom;
 import java.util.Map;
 
+@Slf4j
 public class Utils {
     static PasswordEncoder pwdEncoder = new BCryptPasswordEncoder(10, new SecureRandom(Constants.SECRET.getBytes()));
     private Utils(){
@@ -19,6 +21,7 @@ public class Utils {
     }
 
     public static ResponseEntity<String> getResponseEntity(String responseMessage, HttpStatus httpStatus){
+        log.info(responseMessage+" Http status: "+httpStatus);
         return new ResponseEntity<String>("{\"message\":\""+responseMessage+"\"}",httpStatus);
     }
     public static String requestMapToJson(Map<String, String> requestMap) throws JsonProcessingException {

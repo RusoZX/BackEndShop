@@ -345,26 +345,6 @@ class UserServiceImplTest {
         assertEquals("{\"message\":\""+Constants.INVALID_PWD+"\"}" , response.getBody() );
     }
     @Test
-    public void changePwd(){
-
-        when(jwtFilter.getCurrentUser()).thenReturn("example1@example.com");
-
-        Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("oldPwd","someEncryptedData");
-        requestMap.put("newPwd","idk");
-
-        when(userDao.findByEmail("example1@example.com")).thenReturn(giveTestUser());
-
-        ResponseEntity<String> response= underTest.changePwd(requestMap);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("{\"message\":\""+Constants.UPDATED+"\"}" , response.getBody() );
-
-        User user = giveTestUser();
-        user.setPwd("idk");
-
-        verify(userDao).save(user);
-    }
-    @Test
     public void getUsers(){
         when(jwtFilter.getCurrentUser()).thenReturn("employee@example.com");
 

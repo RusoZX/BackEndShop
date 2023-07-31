@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService {
                 toSend.setName(user.getName());
                 toSend.setBirthDate(user.getBirthDate());
                 toSend.setSurname(user.getSurname());
-
+                log.info("Result:"+toSend);
                 return new ResponseEntity<User>(toSend, HttpStatus.OK);
             }
 
@@ -283,9 +283,23 @@ public class UserServiceImpl implements UserService {
             log.info("User " + jwtFilter.getCurrentUser() + " Trying to get addresses");
             User user = userDao.findByEmail(jwtFilter.getCurrentUser());
             if (!Objects.isNull(user)){
-                return new ResponseEntity<List<AddressWrapper>>(addressDao.findAllWrapper(user.getId()),
-                        HttpStatus.OK);
+                List<AddressWrapper> res = addressDao.findAllWrapper(user.getId());
+                log.info("Result:"+res);
+                return new ResponseEntity<List<AddressWrapper>>(res,HttpStatus.OK);
             }
+        }catch (Exception ex){
+            log.error(ex.getLocalizedMessage());
+        }
+        //It will only get to here through an error
+        return new ResponseEntity<List<AddressWrapper>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<AddressWrapper>> getAllShops() {
+        try {
+            List<AddressWrapper> res = addressDao.findAllWrapper(0L);
+            log.info("Result:"+res);
+            return new ResponseEntity<List<AddressWrapper>>(res,HttpStatus.OK);
         }catch (Exception ex){
             log.error(ex.getLocalizedMessage());
         }
@@ -302,17 +316,24 @@ public class UserServiceImpl implements UserService {
                 if (!Objects.isNull(user)) {
                     Optional<Address> optAddress = addressDao.findById(Long.parseLong(addressId));
                     if(optAddress.isPresent()){
-                        if(user.equals(optAddress.get().getUser())){
+                        if(user.equals(optAddress.get().getUser())|| optAddress.get().getUser().getId()==0L){
                             Address address = optAddress.get();
+                            log.info("Result:"+address);
                             return new ResponseEntity<String>(address.toJson(), HttpStatus.OK);
                         }
-                        else
+                        else {
+                            log.info("Bad Request");
                             return new ResponseEntity<String>("", HttpStatus.BAD_REQUEST);
-                    }else
+                        }
+                    }else {
+                        log.info("Not found");
                         return new ResponseEntity<String>("", HttpStatus.NOT_FOUND);
+                    }
                 }
-            }else
+            }else {
+                log.info("Bad Request");
                 return new ResponseEntity<String>("", HttpStatus.BAD_REQUEST);
+            }
         }catch (Exception ex){
             log.error(ex.getLocalizedMessage());
         }

@@ -28,7 +28,9 @@ class ProductDaoTest {
 
         CartWrapper item = new CartWrapper();
         item.setId(-2L);
+        item.setProductId(-2L);
         item.setTitle("test4");
+        item.setStock(10);
         item.setPrice(2F);
         item.setQuantity(4);
 
@@ -36,7 +38,9 @@ class ProductDaoTest {
 
         item = new CartWrapper();
         item.setId(-1L);
+        item.setProductId(-1L);
         item.setTitle("test3");
+        item.setStock(10);
         item.setPrice(1F);
         item.setQuantity(3);
 

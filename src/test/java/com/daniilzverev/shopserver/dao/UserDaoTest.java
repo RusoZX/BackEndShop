@@ -34,7 +34,7 @@ class UserDaoTest {
         expected.setSurname("test1");
         expected.setBirthDate(LocalDate.parse("2001-09-11"));
         expected.setEmail(email);
-        expected.setPwd("someEncryptedData");
+        expected.setPwd("$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu");
         expected.setRole("client");
 
 

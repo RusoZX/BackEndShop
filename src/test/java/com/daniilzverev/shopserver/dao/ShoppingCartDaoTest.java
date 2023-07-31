@@ -84,7 +84,7 @@ class ShoppingCartDaoTest {
         user.setSurname("test1");
         user.setEmail("example1@example.com");
         user.setBirthDate(LocalDate.parse("2001-09-11", formatter));
-        user.setPwd("someEncryptedData");
+        user.setPwd("$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu");
         user.setRole("client");
 
         return user;

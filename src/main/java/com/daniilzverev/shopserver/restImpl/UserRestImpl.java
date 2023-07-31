@@ -121,6 +121,16 @@ public class UserRestImpl implements UserRest {
     }
 
     @Override
+    public ResponseEntity<List<AddressWrapper>> getAllShops() {
+        try{
+            return userService.getAllShops();
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return new ResponseEntity<List<AddressWrapper>>(new ArrayList<AddressWrapper>(),HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
     public ResponseEntity<String> getAddress(String idAddress) {
         try{
             return userService.getAddress(idAddress);

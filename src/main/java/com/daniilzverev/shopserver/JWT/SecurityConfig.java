@@ -57,14 +57,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 //We dont need CSRF protection since we will use JWT tokens
                 .csrf().disable()
-                .authorizeRequests()
-                //Here are the urls that will not need authentication
-                .antMatchers("/user/login","/user/signup","/user/check","/product/{productId}")
-                .permitAll()
-                //Here we tell the security that all the other urls should be authenticated
-                .anyRequest()
-                .authenticated()
-                .and().exceptionHandling()
+                .exceptionHandling()
                 .and()
                 //We dont need to create a Http session since we will use a Jwt token and the client will need to
                 //authenticate each time

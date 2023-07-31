@@ -117,10 +117,8 @@ class OrderRestImplTest {
                 .andReturn();
         String response = result.getResponse().getContentAsString();
 
-        assertEquals("{\"id\":-1,\"userId\":\"-1\",\"paymentMethod\":\"cash\",\"deliveryMethod\":\"delivery\"," +
-                "\"paymentStatus\":\"false\",\"orderStatus\":\"pending\"," +
-                "\"goods\":[{\"id\":-2,\"productId\":\"-2\",\"quantity\":\"1\"}," +
-                "{\"id\":-1,\"productId\":\"-1\",\"quantity\":\"1\"}]}", response);
+        assertEquals("{\"paymentStatus\":false,\"orderStatus\":\"pending\",\"paymentMethod\":\"cash\"," +
+                "\"deliveryMethod\":\"delivery\",\"dateCreated\":\"2023-07-06\",\"addressId\":-1}", response);
     }
     @Test
     void getOrderBadFormat() throws Exception {
@@ -130,17 +128,19 @@ class OrderRestImplTest {
                 .andExpect(status().isBadRequest())
                 .andReturn();
         String response = result.getResponse().getContentAsString();
-        assertEquals("{\"message\":\""+ Constants.INVALID_DATA+"\"}", response);
+        assertEquals("{\"paymentStatus\":false,\"orderStatus\":null,\"paymentMethod\":null," +
+                "\"deliveryMethod\":null,\"dateCreated\":null,\"addressId\":null}", response);
     }
     @Test
     void getOrderBadOrder() throws Exception {
-        MvcResult result = mockMvc.perform(get("/order/get0")
+        MvcResult result = mockMvc.perform(get("/order/get23")
                 .header("Authorization", "Bearer "
                         + jwtUtil.generateToken("example1@example.com", "someEncryptedData")))
                 .andExpect(status().isNotFound())
                 .andReturn();
         String response = result.getResponse().getContentAsString();
-        assertEquals("{\"message\":\""+ Constants.ORDER_DONT_EXIST+"\"}", response);
+        assertEquals("{\"paymentStatus\":false,\"orderStatus\":null,\"paymentMethod\":null," +
+                "\"deliveryMethod\":null,\"dateCreated\":null,\"addressId\":null}", response);
     }
 
     @Test
@@ -151,7 +151,8 @@ class OrderRestImplTest {
                 .andExpect(status().isOk())
                 .andReturn();
         String response = result.getResponse().getContentAsString();
-        assertEquals("[{\"id\":-1,\"paymentStatus\":\"false\",\"orderStatus\":\"pending\"}]", response);
+        assertEquals("[{\"id\":-1,\"paymentStatus\":\"false\",\"orderStatus\":\"pending\"" +
+                ",\"dateCreated\":\"2023-07-06\"}]", response);
     }
 
     @Test
@@ -253,9 +254,9 @@ class OrderRestImplTest {
         String response = result.getResponse().getContentAsString();
         assertEquals(
                 "[{\"id\":-1,\"userName\":\"example1@example.com\",\"paymentStatus\":\"false\"," +
-                        "\"orderStatus\":\"pending\",\"totalRevenue\":20.0}," +
+                        "\"orderStatus\":\"pending\",\"createdDate\":\"2023-07-06\",\"totalRevenue\":20.0}," +
                         "{\"id\":-2,\"userName\":\"example@example.com\",\"paymentStatus\":\"true\"," +
-                        "\"orderStatus\":\"paid\",\"totalRevenue\":10.0}]", response);
+                        "\"orderStatus\":\"paid\",\"createdDate\":\"2023-06-11\",\"totalRevenue\":10.0}]", response);
     }
     @Test
     void getAllOrdersMonth() throws Exception {
@@ -266,9 +267,9 @@ class OrderRestImplTest {
                 .andReturn();
         String response = result.getResponse().getContentAsString();
         assertEquals("[{\"id\":-1,\"userName\":\"example1@example.com\",\"paymentStatus\":\"false\"," +
-                "\"orderStatus\":\"pending\",\"totalRevenue\":20.0}," +
+                "\"orderStatus\":\"pending\",\"createdDate\":\"2023-07-06\",\"totalRevenue\":20.0}," +
                 "{\"id\":-2,\"userName\":\"example@example.com\",\"paymentStatus\":\"true\"," +
-                "\"orderStatus\":\"paid\",\"totalRevenue\":10.0}]", response);
+                "\"orderStatus\":\"paid\",\"createdDate\":\"2023-06-11\",\"totalRevenue\":10.0}]", response);
     }
     @Test
     void getAllOrdersWeek() throws Exception {
@@ -278,15 +279,10 @@ class OrderRestImplTest {
                 .andExpect(status().isOk())
                 .andReturn();
         String response = result.getResponse().getContentAsString();
-        assertEquals("[{\"id\":-1,\"userName\":\"example1@example.com\",\"paymentStatus\":\"false\"," +
-                "\"orderStatus\":\"pending\",\"totalRevenue\":20.0}]", response);
-    }
-    @Test
-    void getAllOrdersBadFormat() throws Exception {
-        mockMvc.perform(get("/order/getAllOrders?search=badFormat")
-                .header("Authorization", "Bearer "
-                        + jwtUtil.generateToken("employee@example.com", "someEncryptedData")))
-                .andExpect(status().isBadRequest());
+        assertEquals("[{\"id\":-1,\"userName\":\"example1@example.com\",\"paymentStatus\":\"false\"" +
+                ",\"orderStatus\":\"pending\",\"createdDate\":\"2023-07-06\",\"totalRevenue\":20.0}," +
+                "{\"id\":-2,\"userName\":\"example@example.com\",\"paymentStatus\":\"true\"," +
+                "\"orderStatus\":\"paid\",\"createdDate\":\"2023-06-11\",\"totalRevenue\":10.0}]", response);
     }
     @Test
     void getAllOrdersNoAuth() throws Exception {

@@ -6,10 +6,7 @@ import com.daniilzverev.shopserver.dao.*;
 import com.daniilzverev.shopserver.entity.*;
 import com.daniilzverev.shopserver.service.OrderService;
 import com.daniilzverev.shopserver.utils.Utils;
-import com.daniilzverev.shopserver.wrapper.FullOrderForClientWrapper;
-import com.daniilzverev.shopserver.wrapper.GoodsWrapper;
-import com.daniilzverev.shopserver.wrapper.OrderForClientWrapper;
-import com.daniilzverev.shopserver.wrapper.OrderForEmployeeWrapper;
+import com.daniilzverev.shopserver.wrapper.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -19,6 +16,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -50,7 +51,6 @@ public class OrderServiceImpl implements OrderService {
                     List<Goods> goods = getGoods(requestMap.get("goods"));
                     if(!Objects.isNull(goods)){
                         Order order = new Order();
-                        if (requestMap.get("deliveryMethod").equals("delivery")) {
                             Optional<Address> optAddress = addressDao.findById(Long.parseLong(requestMap.get("addressId")));
                             if(optAddress.isPresent()) {
                                 order.setAddress(optAddress.get());
@@ -79,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
                             }
                             else
                                 return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
-                        }
+
 
                     }else
                         return Utils.getResponseEntity(Constants.INVALID_DATA, HttpStatus.BAD_REQUEST);
@@ -102,15 +102,24 @@ public class OrderServiceImpl implements OrderService {
                     Optional<Order> order = orderDao.findById(Long.parseLong(orderId));
                     if(order.isPresent()){
                         if(user.equals(order.get().getUser())||user.getRole().equals("employee")){
+                            FullOrderForClientWrapper res = orderDao.findFullByOrderId(Long.parseLong(orderId));
+                            log.info("Result:"+res);
                             return new ResponseEntity<FullOrderForClientWrapper>
-                                    (orderDao.findFullByOrderId(Long.parseLong(orderId)), HttpStatus.OK);
-                        }else
+                                    (res, HttpStatus.OK);
+                        }else {
+                            log.info("Unauthorized");
                             return new ResponseEntity<FullOrderForClientWrapper>(new FullOrderForClientWrapper(), HttpStatus.UNAUTHORIZED);
-                    }else
+
+                        }
+                    }else {
+                        log.info("Not found");
                         return new ResponseEntity<FullOrderForClientWrapper>(new FullOrderForClientWrapper(), HttpStatus.NOT_FOUND);
+                    }
                 }
-            } else
+            } else {
+                log.info("Bad Request");
                 return new ResponseEntity<FullOrderForClientWrapper>(new FullOrderForClientWrapper(), HttpStatus.BAD_REQUEST);
+            }
         }catch (Exception ex){
             log.error(ex.getLocalizedMessage());
         }
@@ -123,7 +132,9 @@ public class OrderServiceImpl implements OrderService {
             log.info("User " + jwtFilter.getCurrentUser() + " Trying to get orders: ");
             User user = userDao.findByEmail(jwtFilter.getCurrentUser());
             if (!Objects.isNull(user)){
-                return new ResponseEntity<>(orderDao.findAllByUserId(user.getId()), HttpStatus.OK);
+                List<OrderForClientWrapper> res = orderDao.findAllByUserId(user.getId());
+                log.info("Result:"+res);
+                return new ResponseEntity<>(res, HttpStatus.OK);
             }
         }catch (Exception ex){
             log.error(ex.getLocalizedMessage());
@@ -167,22 +178,37 @@ public class OrderServiceImpl implements OrderService {
             log.info("User " + jwtFilter.getCurrentUser() + " Trying to get orders: "+mode);
             User user = userDao.findByEmail(jwtFilter.getCurrentUser());
             if (!Objects.isNull(user)&&user.getRole().equals("employee")){
+                List<OrderForEmployeeWrapper> res ;
+
                 if(Objects.isNull(mode))
-                    return new ResponseEntity<>(orderDao.findAllNone(), HttpStatus.OK);
-                if(mode.equals("week"))
-                    return new ResponseEntity<>(orderDao.findAllTimeInterval(giveWeekAgo(), LocalDate.now()), HttpStatus.OK);
-                if(mode.equals("month"))
-                    return new ResponseEntity<>(orderDao.findAllTimeInterval(giveMonthAgo(), LocalDate.now()), HttpStatus.OK);
-                if(mode.equals("pending"))
-                    return new ResponseEntity<>(orderDao.findAllPending(), HttpStatus.OK);
-                if(mode.equals("byUser"))
-                    return new ResponseEntity<>(orderDao.findAllByUser(search), HttpStatus.OK);
+                    res = orderDao.findAllNone();
+                else {
+                    switch (mode) {
+                        case "week":
+                            res = orderDao.findAllTimeInterval(giveWeekAgo(), LocalDate.now());
+                            break;
+                        case "month":
+                            res = orderDao.findAllTimeInterval(giveMonthAgo(), LocalDate.now());
+                            break;
+                        case "pending":
+                            res = orderDao.findAllPending();
+                            break;
+                        case "byUser":
+                            res = orderDao.findAllByUser(search);
+                            break;
+                        default:
+                            log.info("Bad Request");
+                            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
+                    }
+                }
+                log.info("Response:"+res);
+                return new ResponseEntity<>(res, HttpStatus.OK);
 
 
-                //If it got here it means that there was a bad format
-                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
-            }else
+            }else{
+                log.info("Unauthorized");
                 return new ResponseEntity<>(new ArrayList<>(), HttpStatus.UNAUTHORIZED);
+            }
         }catch (Exception ex){
             log.error(ex.getLocalizedMessage());
         }
@@ -199,10 +225,14 @@ public class OrderServiceImpl implements OrderService {
                 if(!Objects.isNull(user)){
                     Optional<Order> optOrder = orderDao.findById(Long.parseLong(orderId));
                     if(optOrder.isPresent()){
+                        List<GoodsWrapper> res = goodsDao.findAllGoods(optOrder.get().getId());
+                        log.info("Response:"+res);
                         return new ResponseEntity<List<GoodsWrapper>>
-                                (goodsDao.findAllGoods(optOrder.get().getId()), HttpStatus.OK);
-                    }else
+                                (addImages(res), HttpStatus.OK);
+                    }else {
+                        log.info("Bad Request");
                         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
+                    }
                 }
             }
         }catch (Exception ex){
@@ -301,5 +331,35 @@ public class OrderServiceImpl implements OrderService {
     private LocalDate giveMonthAgo(){
         LocalDate now = LocalDate.now();
         return  now.minusMonths(1);
+    }
+    private byte[] getImage(String name) throws Exception{
+        File[] files = new File("C:\\images\\").listFiles((dir, fileName) -> fileName.startsWith(name + ".") );
+        if(files.length!=0) {
+            Path path = Paths.get(files[0].getAbsolutePath());
+            return Files.readAllBytes(path);
+        }
+        return null;
+
+
+    }
+    private String getType(String name){
+        File[] files = new File("C:\\images\\").listFiles((dir, fileName) -> fileName.startsWith(name + ".") );
+        if(files.length!=0)
+            return files[0].getName().substring(files[0].getName().lastIndexOf(".") + 1);
+
+        else
+            return null;
+
+    }
+    private List<GoodsWrapper> addImages(List<GoodsWrapper> goods) throws Exception{
+
+        for(GoodsWrapper item: goods){
+            byte[] img = getImage(item.getTitle()+item.getId());
+            if(!Objects.isNull(img)) {
+                item.setImageData(img);
+                item.setType(getType(item.getTitle() + item.getId()));
+            }
+        }
+        return goods;
     }
 }

@@ -13,6 +13,9 @@ public class CartWrapper {
     private Integer stock;
     private Integer quantity;
 
+    private byte[] imageData;
+    private String type;
+
     public CartWrapper(Long id,Long productId, String title, Float price, Integer stock, Integer quantity) {
         this.id = id;
         this.productId = productId;

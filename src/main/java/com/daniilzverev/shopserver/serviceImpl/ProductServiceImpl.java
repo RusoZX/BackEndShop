@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.IOException;
@@ -140,14 +139,20 @@ public class ProductServiceImpl implements ProductService {
                 Optional<Product> optProduct = productDao.findById(productId);
                 if(optProduct.isPresent()){
                     Product product= optProduct.get();
+                    log.info("Response:"+product);
                     product.setImageData(getImage(product.getTitle()+product.getId()));
                     product.setType(getType(product.getTitle()+product.getId()));
+
                     return new ResponseEntity<Product>(product, HttpStatus.OK);
                 }
-                else
+                else {
+                    log.info("Not found");
                     return new ResponseEntity<Product>(new Product(), HttpStatus.NOT_FOUND);
-            }else
+                }
+            }else {
+                log.info("Bad request");
                 return new ResponseEntity<Product>(new Product(), HttpStatus.BAD_REQUEST);
+            }
         }catch (Exception ex){
             log.error(ex.getLocalizedMessage());
         }
@@ -160,52 +165,46 @@ public class ProductServiceImpl implements ProductService {
             log.info("Giving products filter by "+method+", limit "+limit+",search "+search);
             if(checkGetProductsRequest(method,limit)){
                 Pageable requestLimit = PageRequest.of(0,Integer.parseInt(limit));
+                List<ProductWrapper> res = new ArrayList<>();
                 switch (method){
                     case "None":
-                        return new ResponseEntity<List<ProductWrapper>>(addImages(
-                                productDao.findAllByNone(requestLimit)),
-                                HttpStatus.OK);
+                        res = productDao.findAllByNone(requestLimit);
+                        break;
                     case "Title":
                         if(!Objects.isNull(search))
-                            return new ResponseEntity<List<ProductWrapper>>(addImages(
-                                    productDao.findAllByTitle(search, requestLimit)),
-                                    HttpStatus.OK);
+                            res =productDao.findAllByTitle(search, requestLimit);
                         break;
                     case "Category":
                         if(!Objects.isNull(search))
-                            return new ResponseEntity<List<ProductWrapper>>(addImages(
-                                    productDao.findAllByCategory(search, requestLimit)),
-                                    HttpStatus.OK);
+                            res = productDao.findAllByCategory(search, requestLimit);
                         break;
                     case "PriceAsc":
-                        return new ResponseEntity<List<ProductWrapper>>(addImages(
-                                productDao.findAllByPriceAsc(requestLimit)),
-                                HttpStatus.OK);
+                        res =productDao.findAllByPriceAsc(requestLimit);
+                        break;
                     case "PriceDesc":
-                        return new ResponseEntity<List<ProductWrapper>>(addImages(
-                                productDao.findAllByPriceDesc(requestLimit)),
-                                HttpStatus.OK);
+                        res = productDao.findAllByPriceDesc(requestLimit);
+                        break;
                     case "Brand":
                         if(!Objects.isNull(search))
-                            return new ResponseEntity<List<ProductWrapper>>(addImages(
-                                    productDao.findAllByBrand(search, requestLimit)),
-                                    HttpStatus.OK);
+                            res =productDao.findAllByBrand(search, requestLimit);
                         break;
                     case "Color":
                         if(!Objects.isNull(search))
-                            return new ResponseEntity<List<ProductWrapper>>(addImages(
-                                    productDao.findAllByColor(search, requestLimit)),
-                                    HttpStatus.OK);
+                            res = productDao.findAllByColor(search, requestLimit);
                         break;
                     case "BestSellers":
-                        return new ResponseEntity<List<ProductWrapper>>(addImages(
-                                productDao.findAllByBestSellers(requestLimit)),
-                                HttpStatus.OK);
+                        res = productDao.findAllByBestSellers(requestLimit);
+                        break;
+                    default:
+                        //If it got here it means that search, method or limit had bad format
+                        log.info("Bad Request");
+                        return new ResponseEntity<List<ProductWrapper>>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
                 }
+                log.info("Result:"+res);
+                return new ResponseEntity<List<ProductWrapper>>(addImages(res), HttpStatus.OK);
 
             }
-            //If it got here it means that search, method or limit had bad format
-            return new ResponseEntity<List<ProductWrapper>>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
+
         }catch (Exception ex){
             log.error(ex.getLocalizedMessage());
         }
@@ -215,7 +214,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ResponseEntity<List<String>> getCategories() {
         try{
-            return new ResponseEntity<>(productDao.findAllCategories(), HttpStatus.OK);
+            List<String> res = productDao.findAllCategories();
+            log.info("Result:"+res);
+            return new ResponseEntity<>(res, HttpStatus.OK);
         }catch (Exception ex){
             log.error(ex.getLocalizedMessage());
         }

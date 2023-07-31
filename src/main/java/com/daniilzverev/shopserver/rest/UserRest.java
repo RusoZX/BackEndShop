@@ -41,6 +41,9 @@ public interface UserRest {
     @GetMapping(path="/address/getAll")
     ResponseEntity<List<AddressWrapper>> getAllAddress();
 
+    @GetMapping(path="/address/getAllShops")
+    ResponseEntity<List<AddressWrapper>> getAllShops();
+
     @GetMapping(path="/address/get{idAddress}")
     ResponseEntity<String> getAddress(@PathVariable String idAddress);
 

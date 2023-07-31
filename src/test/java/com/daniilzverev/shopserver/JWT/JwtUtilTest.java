@@ -34,7 +34,7 @@ class JwtUtilTest {
 
     String secret="TiteRuso";
     String username="example@example.com";
-    String pwd="$2a$10$ZHead6J4P26hDO92na.lpeTe4pP6vJk01gEbqC28ojZk8873SgDcu";
+    String pwd="someEncryptedData";
 
     //Generate a token to test the methods with "example@example.com" and "SomeEncryptedData"
     final String exampleToken= newToken();

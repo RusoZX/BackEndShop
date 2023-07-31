@@ -106,7 +106,7 @@ class GoodsDaoTest {
         order.setDeliveryMethod("delivery");
         order.setPaymentStatus(false);
         order.setOrderStatus("pending");
-        order.setCreatedDate(LocalDate.parse("2023-07-01",formatter));
+        order.setCreatedDate(LocalDate.parse("2023-07-06",formatter));
 
         return order;
     }

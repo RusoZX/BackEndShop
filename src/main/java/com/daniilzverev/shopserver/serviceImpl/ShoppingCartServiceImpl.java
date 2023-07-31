@@ -11,12 +11,17 @@ import com.daniilzverev.shopserver.entity.User;
 import com.daniilzverev.shopserver.service.ShoppingCartService;
 import com.daniilzverev.shopserver.utils.Utils;
 import com.daniilzverev.shopserver.wrapper.CartWrapper;
+import com.daniilzverev.shopserver.wrapper.GoodsWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @Slf4j
@@ -119,7 +124,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             User user = userDao.findByEmail(jwtFilter.getCurrentUser());
             if(!Objects.isNull(user)){
                 List<CartWrapper> result = productDao.findAllInShoppingCart(user.getId());
-                return new ResponseEntity<List<CartWrapper>>(result,HttpStatus.OK);
+                log.info("Result:"+result);
+                return new ResponseEntity<List<CartWrapper>>(addImages(result),HttpStatus.OK);
             }
         }catch (Exception ex){
             log.error(ex.getLocalizedMessage());
@@ -178,5 +184,36 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                 log.error("Bad Number format in Add To Cart Petition");
             }
         return false;
+    }
+    private byte[] getImage(String name) throws Exception{
+        System.out.println("HERE____________________"+name);
+        File[] files = new File("C:\\images\\").listFiles((dir, fileName) -> fileName.startsWith(name + ".") );
+        if(files.length!=0) {
+            Path path = Paths.get(files[0].getAbsolutePath());
+            return Files.readAllBytes(path);
+        }
+        return null;
+
+
+    }
+    private String getType(String name){
+        File[] files = new File("C:\\images\\").listFiles((dir, fileName) -> fileName.startsWith(name + ".") );
+        if(files.length!=0)
+            return files[0].getName().substring(files[0].getName().lastIndexOf(".") + 1);
+
+        else
+            return null;
+
+    }
+    private List<CartWrapper> addImages(List<CartWrapper> cart) throws Exception{
+
+        for(CartWrapper item: cart){
+            byte[] img = getImage(item.getTitle()+item.getProductId());
+            if(!Objects.isNull(img)) {
+                item.setImageData(img);
+                item.setType(getType(item.getTitle() + item.getProductId()));
+            }
+        }
+        return cart;
     }
 }
